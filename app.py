@@ -1,9 +1,12 @@
 import streamlit as st
-import streamlit.components.v1 as components
+import pandas as pd
+import numpy as np
+from PIL import Image
+import io
 
 # Set page configuration
 st.set_page_config(
-    page_title="Motorcycle Accident Claims: Your Guide To Compensation",
+    page_title="Motorcycle Accident Claims Specialist",
     page_icon="🏍️",
     layout="wide",
     initial_sidebar_state="collapsed"
@@ -11,423 +14,261 @@ st.set_page_config(
 
 # Custom CSS for styling
 st.markdown("""
-<style>
-    /* Global styles */
-    .main {
-        padding: 0;
-    }
-    .stApp {
-        max-width: 1200px;
-        margin: 0 auto;
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
+    
+    * {
+        font-family: 'Montserrat', sans-serif;
     }
     
-    /* Navigation */
-    .navbar {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        background-color: #1a237e;
-        color: white;
-        padding: 10px 0;
-        z-index: 1000;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
-    .nav-container {
-        display: flex;
-        justify-content: center;
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 0 20px;
-    }
-    .nav-item {
-        margin: 0 15px;
-        color: white;
-        text-decoration: none;
-        font-weight: 500;
-        padding: 5px 10px;
-        border-radius: 4px;
-        transition: background-color 0.3s;
-    }
-    .nav-item:hover {
-        background-color: #283593;
-        color: white;
-    }
-    
-    /* Hero section */
-    .hero {
-        background: linear-gradient(rgba(26, 35, 126, 0.8), rgba(26, 35, 126, 0.8)), url('https://images.unsplash.com/photo-1558980663-3685c1d673c4?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
-        background-size: cover;
-        background-position: center;
-        color: white;
-        padding: 120px 20px 80px;
+    .main-header {
+        font-size: 3.5rem;
+        font-weight: 700;
+        color: #2c3e50;
         text-align: center;
-        margin-top: 60px;
+        margin-bottom: 1rem;
     }
     
-    /* Cards */
-    .card {
-        background-color: white;
-        border-radius: 10px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        padding: 25px;
-        margin: 20px 0;
-        transition: transform 0.3s, box-shadow 0.3s;
-    }
-    .card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-    }
-    
-    /* Buttons */
-    .stButton button {
-        background-color: #1a237e;
-        color: white;
-        border: none;
-        padding: 12px 24px;
-        border-radius: 6px;
+    .subheader {
+        font-size: 1.8rem;
         font-weight: 600;
-        transition: background-color 0.3s;
-    }
-    .stButton button:hover {
-        background-color: #283593;
-        color: white;
-    }
-    
-    /* Contact form */
-    .contact-form {
-        background-color: #f5f5f5;
-        padding: 30px;
-        border-radius: 10px;
-        margin: 30px 0;
-    }
-    
-    /* Footer */
-    .footer {
-        background-color: #1a237e;
-        color: white;
-        padding: 20px;
+        color: #3498db;
         text-align: center;
-        margin-top: 50px;
-    }
-    .footer a {
-        color: white;
-        margin: 0 10px;
-        text-decoration: none;
+        margin-bottom: 2rem;
     }
     
-    /* Floating button */
-    .floating-btn {
-        position: fixed;
-        bottom: 30px;
-        right: 30px;
-        background-color: #d32f2f;
-        color: white;
-        border: none;
-        border-radius: 50px;
-        padding: 15px 25px;
+    .section-header {
+        font-size: 2.2rem;
         font-weight: 600;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        z-index: 999;
+        color: #2c3e50;
+        border-left: 5px solid #e74c3c;
+        padding-left: 15px;
+        margin: 2.5rem 0 1.5rem 0;
+    }
+    
+    .highlight {
+        background-color: #f8f9fa;
+        padding: 2rem;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin: 1.5rem 0;
+    }
+    
+    .stat-box {
+        background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
+        color: white;
+        padding: 1.5rem;
+        border-radius: 10px;
+        text-align: center;
+        margin: 1rem 0;
+    }
+    
+    .cta-button {
+        background-color: #e74c3c;
+        color: white;
+        padding: 1rem 2rem;
+        border: none;
+        border-radius: 5px;
+        font-size: 1.2rem;
+        font-weight: 600;
         cursor: pointer;
+        display: block;
+        margin: 2rem auto;
+        transition: background-color 0.3s;
     }
     
-    /* Responsive adjustments */
-    @media (max-width: 768px) {
-        .nav-container {
-            flex-wrap: wrap;
-        }
-        .nav-item {
-            margin: 5px;
-            font-size: 14px;
-        }
-        .hero {
-            padding: 100px 15px 60px;
-        }
+    .cta-button:hover {
+        background-color: #c0392b;
     }
-</style>
+    
+    .footer {
+        background-color: #2c3e50;
+        color: white;
+        padding: 2rem;
+        text-align: center;
+        margin-top: 3rem;
+    }
+    
+    .testimonial {
+        background-color: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 10px;
+        margin: 1rem 0;
+        border-left: 4px solid #3498db;
+    }
+    
+    .step-number {
+        background-color: #3498db;
+        color: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        margin-right: 1rem;
+    }
+    </style>
 """, unsafe_allow_html=True)
 
-# Navigation bar
+# Header section
+col1, col2, col3 = st.columns([1, 2, 1])
+with col2:
+    st.markdown('<h1 class="main-header">Motorcycle Accident Claims</h1>', unsafe_allow_html=True)
+    st.markdown('<h2 class="subheader">Expert Legal Support for Riders</h2>', unsafe_allow_html=True)
+    st.markdown("""
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <p style="font-size: 1.2rem;">If you've been involved in a motorcycle accident that wasn't your fault, 
+            you may be entitled to compensation. Our specialist solicitors are here to help you 
+            through the claims process.</p>
+        </div>
+    """, unsafe_allow_html=True)
+
+# Stats section
+st.markdown('<div class="section-header">Why Choose Our Services?</div>', unsafe_allow_html=True)
+stats_col1, stats_col2, stats_col3, stats_col4 = st.columns(4)
+
+with stats_col1:
+    st.markdown("""
+        <div class="stat-box">
+            <h3>98%</h3>
+            <p>Success Rate</p>
+        </div>
+    """, unsafe_allow_html=True)
+
+with stats_col2:
+    st.markdown("""
+        <div class="stat-box">
+            <h3>£50M+</h3>
+            <p>Recovered for Clients</p>
+        </div>
+    """, unsafe_allow_html=True)
+
+with stats_col3:
+    st.markdown("""
+        <div class="stat-box">
+            <h3>15+</h3>
+            <p>Years Experience</p>
+        </div>
+    """, unsafe_allow_html=True)
+
+with stats_col4:
+    st.markdown("""
+        <div class="stat-box">
+            <h3>No Win</h3>
+            <p>No Fee Policy</p>
+        </div>
+    """, unsafe_allow_html=True)
+
+# Services section
+st.markdown('<div class="section-header">Our Services</div>', unsafe_allow_html=True)
+services_col1, services_col2, services_col3 = st.columns(3)
+
+with services_col1:
+    st.markdown("""
+        <div class="highlight">
+            <h3>🩺 Personal Injury Claims</h3>
+            <p>Compensation for injuries sustained in motorcycle accidents, including whiplash, fractures, and more serious injuries.</p>
+        </div>
+    """, unsafe_allow_html=True)
+
+with services_col2:
+    st.markdown("""
+        <div class="highlight">
+            <h3>🔧 Vehicle Repair Costs</h3>
+            <p>Recover the costs of repairing or replacing your motorcycle and any damaged equipment or clothing.</p>
+        </div>
+    """, unsafe_allow_html=True)
+
+with services_col3:
+    st.markdown("""
+        <div class="highlight">
+            <h3>💰 Financial Loss Recovery</h3>
+            <p>Claim for lost earnings, medical expenses, and other financial impacts resulting from your accident.</p>
+        </div>
+    """, unsafe_allow_html=True)
+
+# Process section
+st.markdown('<div class="section-header">Our Simple Process</div>', unsafe_allow_html=True)
+
+process_col1, process_col2, process_col3, process_col4 = st.columns(4)
+
+with process_col1:
+    st.markdown("""
+        <div style="display: flex; align-items: center; margin-bottom: 1rem;">
+            <div class="step-number">1</div>
+            <h3>Contact Us</h3>
+        </div>
+        <p>Reach out for a free initial consultation to discuss your case.</p>
+    """, unsafe_allow_html=True)
+
+with process_col2:
+    st.markdown("""
+        <div style="display: flex; align-items: center; margin-bottom: 1rem;">
+            <div class="step-number">2</div>
+            <h3>Case Evaluation</h3>
+        </div>
+        <p>Our experts will assess the merits of your claim and advise on the best approach.</p>
+    """, unsafe_allow_html=True)
+
+with process_col3:
+    st.markdown("""
+        <div style="display: flex; align-items: center; margin-bottom: 1rem;">
+            <div class="step-number">3</div>
+            <h3>Claim Progression</h3>
+        </div>
+        <p>We handle all paperwork and negotiations on your behalf.</p>
+    """, unsafe_allow_html=True)
+
+with process_col4:
+    st.markdown("""
+        <div style="display: flex; align-items: center; margin-bottom: 1rem;">
+            <div class="step-number">4</div>
+            <h3>Resolution</h3>
+        </div>
+        <p>We work to secure the maximum compensation you're entitled to.</p>
+    """, unsafe_allow_html=True)
+
+# Testimonials
+st.markdown('<div class="section-header">Client Testimonials</div>', unsafe_allow_html=True)
+
+testimonial_col1, testimonial_col2 = st.columns(2)
+
+with testimonial_col1:
+    st.markdown("""
+        <div class="testimonial">
+            <p>"After my motorcycle accident, I was overwhelmed with medical bills and insurance paperwork. 
+            The team handled everything professionally and secured me a settlement that covered all my expenses 
+            and lost income. I couldn't be happier with the service."</p>
+            <p><strong>- James R., Manchester</strong></p>
+        </div>
+    """, unsafe_allow_html=True)
+
+with testimonial_col2:
+    st.markdown("""
+        <div class="testimonial">
+            <p>"I was hesitant to make a claim after my accident, but I'm so glad I contacted these specialists. 
+            They were compassionate, knowledgeable, and fought hard to get me the compensation I deserved. 
+            Highly recommended for any motorcyclist needing legal support."</p>
+            <p><strong>- Sarah L., Birmingham</strong></p>
+        </div>
+    """, unsafe_allow_html=True)
+
+# CTA section
 st.markdown("""
-<div class="navbar">
-    <div class="nav-container">
-        <a href="#hero" class="nav-item">Home</a>
-        <a href="#vulnerable" class="nav-item">Why Vulnerable</a>
-        <a href="#eligibility" class="nav-item">Eligibility</a>
-        <a href="#compensation" class="nav-item">Compensation</a>
-        <a href="#timeline" class="nav-item">Timeline</a>
-        <a href="#evidence" class="nav-item">Evidence</a>
-        <a href="#process" class="nav-item">Process</a>
-        <a href="#support" class="nav-item">Legal Support</a>
-        <a href="#contact" class="nav-item">Contact</a>
+    <div style="text-align: center; padding: 3rem 1rem; background-color: #f8f9fa; border-radius: 10px; margin: 2rem 0;">
+        <h2 style="color: #2c3e50; margin-bottom: 1.5rem;">Start Your Claim Today</h2>
+        <p style="font-size: 1.2rem; margin-bottom: 2rem;">Contact us for a free, no-obligation consultation to discuss your motorcycle accident claim.</p>
+        <button class="cta-button" onclick="window.open('https://www.advice.co.uk/road-traffic-accident-claims/motorcycle-accident-claims', '_blank')">Free Case Evaluation</button>
     </div>
-</div>
-""", unsafe_allow_html=True)
-
-# Hero section
-st.markdown("""
-<div class="hero" id="hero">
-    <h1 style="font-size: 2.8rem; margin-bottom: 20px;">Motorcycle Accident Claims: Your Guide To Compensation</h1>
-    <p style="font-size: 1.4rem; margin-bottom: 30px; max-width: 800px; margin-left: auto; margin-right: auto;">
-        Understand your rights, the claims process, and how to secure the compensation you deserve after a motorcycle accident.
-    </p>
-    <a href="https://www.advice.co.uk" target="_blank">
-        <button style="background-color: #d32f2f; color: white; border: none; padding: 15px 30px; border-radius: 6px; font-size: 1.1rem; font-weight: 600; cursor: pointer;">
-            Get Free Legal Advice
-        </button>
-    </a>
-</div>
-""", unsafe_allow_html=True)
-
-# Main content container
-with st.container():
-    col1, col2, col3 = st.columns([1, 8, 1])
-    
-    with col2:
-        # Why Riders Are More Vulnerable
-        st.markdown('<div id="vulnerable"></div>', unsafe_allow_html=True)
-        with st.expander("### Why Riders Are More Vulnerable", expanded=True):
-            st.markdown("""
-            Motorcyclists are among the most vulnerable road users. Without the protective shell of a vehicle, 
-            riders are exposed to direct impact in collisions. Common injuries tend to be more severe, including:
-            
-            - Head and brain injuries (even with helmets)
-            - Spinal cord damage and paralysis
-            - Multiple fractures and broken bones
-            - Severe lacerations and road rash
-            - Psychological trauma and PTSD
-            
-            Statistics show that motorcyclists are approximately **38 times more likely** to be killed in a crash 
-            than car occupants per mile traveled. This heightened risk underscores the importance of proper 
-            compensation when accidents occur due to others' negligence.
-            """)
-        
-        # Do You Have The Right To Claim?
-        st.markdown('<div id="eligibility"></div>', unsafe_allow_html=True)
-        with st.expander("### Do You Have The Right To Claim?", expanded=False):
-            st.markdown("""
-            You may have grounds for a compensation claim if your motorcycle accident was caused by:
-            
-            - Another driver's negligence (careless driving, speeding, etc.)
-            - Poor road conditions or defective road maintenance
-            - Faulty motorcycle parts or equipment
-            - Inadequate signage or road design
-            
-            **Key eligibility factors:**
-            
-            1. The accident occurred within the last three years (see time limits)
-            2. Another party was wholly or partially at fault
-            3. You sustained verifiable injuries or losses
-            
-            Even if you believe you may have been partially at fault, you could still claim compensation under 
-            the principle of "contributory negligence." It's advisable to seek professional legal advice to 
-            assess your specific situation.
-            """)
-        
-        # What Could Compensation Include?
-        st.markdown('<div id="compensation"></div>', unsafe_allow_html=True)
-        with st.expander("### What Could Compensation Include?", expanded=False):
-            st.markdown("""
-            A successful motorcycle accident claim can provide compensation for:
-            
-            **General Damages:**
-            - Pain and suffering from injuries
-            - Psychological trauma and emotional distress
-            - Loss of amenity (reduced quality of life)
-            
-            **Special Damages (financial losses):**
-            - Medical expenses (current and future)
-            - Loss of earnings and future earning capacity
-            - Cost of care and rehabilitation
-            - Motorcycle repair or replacement costs
-            - Travel expenses to medical appointments
-            - Adapted accommodation or vehicle modifications
-            
-            Compensation amounts vary significantly based on injury severity, impact on your life, 
-            and financial losses incurred. Serious injuries leading to long-term disability typically 
-            result in higher compensation awards.
-            """)
-        
-        # How Long Do You Have To Claim?
-        st.markdown('<div id="timeline"></div>', unsafe_allow_html=True)
-        with st.expander("### How Long Do You Have To Claim?", expanded=False):
-            st.markdown("""
-            In the UK, the standard time limit for personal injury claims is:
-            
-            **Three years from the accident date**
-            
-            However, exceptions apply in certain circumstances:
-            
-            - For children: The three-year limit begins on their 18th birthday
-            - For those lacking mental capacity: The time limit may be paused
-            - If the injury wasn't immediately apparent: The limit may run from the date of knowledge
-            
-            While three years might seem ample, starting the process early is strongly recommended. 
-            Gathering evidence becomes more difficult with time, and early legal advice can significantly 
-            strengthen your case.
-            
-            Don't assume you have plenty of time - contact a solicitor as soon as you're able after your accident.
-            """)
-        
-        # Gathering Evidence For Your Case
-        st.markdown('<div id="evidence"></div>', unsafe_allow_html=True)
-        with st.expander("### Gathering Evidence For Your Case", expanded=False):
-            st.markdown("""
-            Strong evidence is crucial for a successful claim. If possible after an accident, try to collect:
-            
-            **At the scene:**
-            - Photographs of the accident scene, vehicle positions, and road conditions
-            - Contact details of any witnesses
-            - The other driver's information and insurance details
-            - Police incident number (if they attended)
-            
-            **Medical evidence:**
-            - Comprehensive medical reports detailing all injuries
-            - Records of all treatments, medications, and therapies
-            - Photographs of visible injuries over time
-            
-            **Financial evidence:**
-            - Receipts for all accident-related expenses
-            - Documentation of lost income (payslips, employer letters)
-            - Records of care costs and other financial impacts
-            
-            Even if you couldn't gather evidence at the scene, a solicitor can help reconstruct events 
-            and collect crucial evidence later through accident reconstruction experts, CCTV footage 
-            requests, and witness statements.
-            """)
-        
-        # How Long Might A Claim Take?
-        st.markdown('<div id="process"></div>', unsafe_allow_html=True)
-        with st.expander("### How Long Might A Claim Take?", expanded=False):
-            st.markdown("""
-            Claim duration varies significantly based on case complexity:
-            
-            - **Straightforward cases** (clear liability, minor injuries): 6-12 months
-            - **Moderately complex cases** (disputed liability, multiple injuries): 12-24 months
-            - **Highly complex cases** (serious injuries, multiple parties, disputed facts): 2-5 years
-            
-            **Factors affecting timeline:**
-            
-            1. Liability disputes - if fault is contested, resolution takes longer
-            2. Injury severity - serious injuries require longer medical assessment
-            3. Defendant response - insurance companies vary in their responsiveness
-            4. Court availability - if litigation is necessary, this adds time
-            
-            Your solicitor can provide a more accurate timeline after evaluating your specific case. 
-            While some claims resolve quickly, it's important to prepare for a process that may take 
-            considerable time, especially for serious injuries where long-term prognosis needs assessment.
-            """)
-        
-        # Why Many Choose Legal Support
-        st.markdown('<div id="support"></div>', unsafe_allow_html=True)
-        with st.expander("### Why Many Choose Legal Support", expanded=False):
-            st.markdown("""
-            Most motorcycle accident claimants benefit from professional legal representation because:
-            
-            - **Expert knowledge**: Solicitors understand complex personal injury law and procedures
-            - **Evidence gathering**: Legal teams know what evidence is needed and how to obtain it
-            - **Proper valuation**: Lawyers ensure all damages are identified and properly valued
-            - **Negotiation skills**: Experienced negotiators can maximize your compensation
-            - **Reduced stress**: Handling the claim process allows you to focus on recovery
-            - **No-win, no-fee options**: Many solicitors offer conditional fee agreements
-            
-            Insurance companies have legal teams working to minimize payouts. Having your own legal 
-            representation levels the playing field and significantly increases your chances of 
-            receiving full and fair compensation.
-            
-            Initial consultations are typically free, allowing you to understand your options without 
-            financial commitment.
-            """)
-        
-        # Final Thoughts
-        with st.expander("### Final Thoughts", expanded=False):
-            st.markdown("""
-            Being involved in a motorcycle accident can be a life-changing experience with physical, 
-            emotional, and financial consequences. Understanding your rights to compensation is an 
-            important step toward recovery.
-            
-            **Key takeaways:**
-            
-            1. You may have a claim if someone else was at fault for your accident
-            2. Time limits apply - generally three years from the accident date
-            3. Compensation can cover both physical injuries and financial losses
-            4. Professional legal support typically improves outcomes
-            
-            If you've been involved in a motorcycle accident, don't navigate the complex claims 
-            process alone. Seek professional advice to understand your options and ensure your 
-            rights are protected.
-            
-            > *This guide provides general information but does not constitute legal advice. 
-            > For advice specific to your situation, consult with a qualified solicitor.*
-            """)
-        
-        # Contact form
-        st.markdown('<div id="contact"></div>', unsafe_allow_html=True)
-        st.markdown("### Contact Us For a Free Case Assessment")
-        st.markdown("Complete the form below and our specialist motorcycle claims team will contact you for a free, no-obligation consultation.")
-        
-        with st.form("contact_form"):
-            col1, col2 = st.columns(2)
-            with col1:
-                name = st.text_input("Full Name*")
-            with col2:
-                email = st.text_input("Email Address*")
-            message = st.text_area("Brief Description of Your Accident*")
-            submitted = st.form_submit_button("Submit Inquiry")
-            if submitted:
-                if name and email and message:
-                    st.success("Thank you for your inquiry. We'll contact you within 24 hours.")
-                else:
-                    st.error("Please complete all required fields.")
-
-# Floating contact button
-st.markdown("""
-<a href="https://www.advice.co.uk" target="_blank">
-    <button class="floating-btn">Contact a Solicitor</button>
-</a>
 """, unsafe_allow_html=True)
 
 # Footer
 st.markdown("""
-<div class="footer">
-    <p>© 2023 Motorcycle Accident Claims Guide. All rights reserved.</p>
-    <div>
-        <a href="#">Privacy Policy</a> | 
-        <a href="#">Disclaimer</a> | 
-        <a href="#">Contact</a>
+    <div class="footer">
+        <p>© 2023 Motorcycle Accident Claims Specialist | All Rights Reserved</p>
+        <p>This site provides general information about motorcycle accident claims. For specialized legal advice regarding your situation, please contact us directly.</p>
+        <p>Return to <a href="https://www.advice.co.uk/road-traffic-accident-claims/motorcycle-accident-claims" style="color: #3498db; text-decoration: none;">Advice.co.uk Motorcycle Accident Claims</a></p>
     </div>
-</div>
 """, unsafe_allow_html=True)
-
-# Smooth scroll JavaScript
-components.html("""
-<script>
-// Smooth scrolling for navigation links
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const targetId = this.getAttribute('href');
-        if(targetId !== '#') {
-            const targetElement = document.querySelector(targetId);
-            if(targetElement) {
-                window.scrollTo({
-                    top: targetElement.offsetTop - 70,
-                    behavior: 'smooth'
-                });
-            }
-        }
-    });
-});
-
-// Make navbar sticky
-window.addEventListener('scroll', function() {
-    const navbar = document.querySelector('.navbar');
-    if (window.scrollY > 50) {
-        navbar.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
-    } else {
-        navbar.style.boxShadow = 'none';
-    }
-});
-</script>
-""", height=0)
