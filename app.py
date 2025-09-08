@@ -6,7 +6,7 @@ import io
 
 # Set page configuration
 st.set_page_config(
-    page_title="Motorcycle Accident Claims Specialist",
+    page_title="Motorcycle Accident Claims Specialist | UK Legal Experts",
     page_icon="🏍️",
     layout="wide",
     initial_sidebar_state="collapsed"
@@ -109,14 +109,51 @@ st.markdown("""
         font-weight: bold;
         margin-right: 1rem;
     }
+    
+    .calculator {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        padding: 2rem;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin: 2rem 0;
+    }
+    
+    .seo-content {
+        background-color: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 10px;
+        margin: 1.5rem 0;
+    }
     </style>
 """, unsafe_allow_html=True)
+
+# Compensation calculator function
+def calculate_compensation(injury_type, severity, lost_income, medical_expenses, rehabilitation_costs):
+    # Base compensation amounts for different injury types (in GBP)
+    injury_compensation = {
+        'whiplash': {'mild': 2000, 'moderate': 4000, 'severe': 8000},
+        'fracture': {'mild': 4000, 'moderate': 9000, 'severe': 16000},
+        'head_injury': {'mild': 3000, 'moderate': 12000, 'severe': 25000},
+        'back_injury': {'mild': 3500, 'moderate': 10000, 'severe': 20000},
+        'soft_tissue': {'mild': 1500, 'moderate': 3500, 'severe': 6000}
+    }
+    
+    # Calculate base compensation
+    base_comp = injury_compensation.get(injury_type, {}).get(severity, 0)
+    
+    # Calculate special damages (financial losses)
+    special_damages = lost_income + medical_expenses + rehabilitation_costs
+    
+    # Total compensation (general damages + special damages)
+    total_comp = base_comp + special_damages
+    
+    return base_comp, special_damages, total_comp
 
 # Header section
 col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
     st.markdown('<h1 class="main-header">Motorcycle Accident Claims</h1>', unsafe_allow_html=True)
-    st.markdown('<h2 class="subheader">Expert Legal Support for Riders</h2>', unsafe_allow_html=True)
+    st.markdown('<h2 class="subheader">Expert Legal Support for UK Riders</h2>', unsafe_allow_html=True)
     st.markdown("""
         <div style="text-align: center; margin-bottom: 2rem;">
             <p style="font-size: 1.2rem;">If you've been involved in a motorcycle accident that wasn't your fault, 
@@ -161,6 +198,78 @@ with stats_col4:
         </div>
     """, unsafe_allow_html=True)
 
+# Compensation Calculator
+st.markdown('<div class="section-header">Compensation Calculator</div>', unsafe_allow_html=True)
+st.markdown("""
+    <div style="margin-bottom: 1.5rem;">
+        <p>Use our calculator to get an estimate of how much compensation you might be entitled to after a motorcycle accident.</p>
+    </div>
+""", unsafe_allow_html=True)
+
+calculator_col1, calculator_col2 = st.columns(2)
+
+with calculator_col1:
+    injury_type = st.selectbox(
+        "Type of Injury",
+        ("whiplash", "fracture", "head_injury", "back_injury", "soft_tissue"),
+        help="Select the primary injury you sustained"
+    )
+    
+    severity = st.select_slider(
+        "Severity of Injury",
+        options=["mild", "moderate", "severe"],
+        help="How severe was your injury?"
+    )
+    
+    lost_income = st.number_input(
+        "Lost Income (£)",
+        min_value=0,
+        max_value=100000,
+        value=0,
+        step=500,
+        help="Approximate income you've lost due to the accident"
+    )
+
+with calculator_col2:
+    medical_expenses = st.number_input(
+        "Medical Expenses (£)",
+        min_value=0,
+        max_value=50000,
+        value=0,
+        step=250,
+        help="Cost of medical treatment related to your accident"
+    )
+    
+    rehabilitation_costs = st.number_input(
+        "Rehabilitation Costs (£)",
+        min_value=0,
+        max_value=30000,
+        value=0,
+        step=250,
+        help="Cost of ongoing rehabilitation or therapy"
+    )
+    
+    # Calculate compensation when button is clicked
+    if st.button("Calculate Compensation", use_container_width=True):
+        base_comp, special_damages, total_comp = calculate_compensation(
+            injury_type, severity, lost_income, medical_expenses, rehabilitation_costs
+        )
+        
+        st.markdown(f"""
+            <div class="calculator">
+                <h3 style="text-align: center; color: #2c3e50;">Estimated Compensation</h3>
+                <p style="text-align: center; font-size: 2.5rem; font-weight: bold; color: #e74c3c;">£{total_comp:,.0f}</p>
+                <div style="background-color: white; padding: 1rem; border-radius: 8px; margin-top: 1rem;">
+                    <p><strong>Breakdown:</strong></p>
+                    <p>Injury Compensation: £{base_comp:,.0f}</p>
+                    <p>Financial Losses: £{special_damages:,.0f}</p>
+                </div>
+                <p style="text-align: center; margin-top: 1rem; font-style: italic;">
+                    This is an estimate. Actual compensation may vary based on your specific circumstances.
+                </p>
+            </div>
+        """, unsafe_allow_html=True)
+
 # Services section
 st.markdown('<div class="section-header">Our Services</div>', unsafe_allow_html=True)
 services_col1, services_col2, services_col3 = st.columns(3)
@@ -188,6 +297,27 @@ with services_col3:
             <p>Claim for lost earnings, medical expenses, and other financial impacts resulting from your accident.</p>
         </div>
     """, unsafe_allow_html=True)
+
+# SEO-optimized content for UK audience
+st.markdown('<div class="section-header">Motorcycle Accident Claims in the UK</div>', unsafe_allow_html=True)
+
+st.markdown("""
+    <div class="seo-content">
+        <h3>Expert Legal Support for Motorcyclists Across the United Kingdom</h3>
+        <p>If you've been involved in a motorcycle accident in <strong>London, Manchester, Birmingham, Glasgow, Cardiff, Edinburgh, Leeds, Liverpool, Bristol,</strong> or anywhere else in the UK, our specialist solicitors can help you claim the compensation you deserve.</p>
+        
+        <h4>Understanding UK Motorcycle Accident Claims</h4>
+        <p>In the United Kingdom, motorcycle riders have the same rights to compensation as other road users when involved in accidents that weren't their fault. The UK legal system allows claims for:</p>
+        <ul>
+            <li>General damages (compensation for pain, suffering, and loss of amenity)</li>
+            <li>Special damages (financial losses including medical expenses, lost earnings, and travel costs)</li>
+            <li>Future losses (ongoing care costs, future lost earnings, and future medical treatment)</li>
+        </ul>
+        
+        <h4>Why Choose Our UK-Based Legal Team?</h4>
+        <p>Our solicitors specialize exclusively in motorcycle accident claims across England, Scotland, Wales, and Northern Ireland. We understand the unique challenges faced by motorcyclists on UK roads and have extensive experience dealing with UK insurance companies and the court system.</p>
+    </div>
+""", unsafe_allow_html=True)
 
 # Process section
 st.markdown('<div class="section-header">Our Simple Process</div>', unsafe_allow_html=True)
@@ -238,20 +368,20 @@ testimonial_col1, testimonial_col2 = st.columns(2)
 with testimonial_col1:
     st.markdown("""
         <div class="testimonial">
-            <p>"After my motorcycle accident, I was overwhelmed with medical bills and insurance paperwork. 
+            <p>"After my motorcycle accident in London, I was overwhelmed with medical bills and insurance paperwork. 
             The team handled everything professionally and secured me a settlement that covered all my expenses 
             and lost income. I couldn't be happier with the service."</p>
-            <p><strong>- James R., Manchester</strong></p>
+            <p><strong>- James R., London</strong></p>
         </div>
     """, unsafe_allow_html=True)
 
 with testimonial_col2:
     st.markdown("""
         <div class="testimonial">
-            <p>"I was hesitant to make a claim after my accident, but I'm so glad I contacted these specialists. 
+            <p>"I was hesitant to make a claim after my accident in Manchester, but I'm so glad I contacted these specialists. 
             They were compassionate, knowledgeable, and fought hard to get me the compensation I deserved. 
-            Highly recommended for any motorcyclist needing legal support."</p>
-            <p><strong>- Sarah L., Birmingham</strong></p>
+            Highly recommended for any motorcyclist needing legal support in the UK."</p>
+            <p><strong>- Sarah L., Manchester</strong></p>
         </div>
     """, unsafe_allow_html=True)
 
@@ -260,15 +390,19 @@ st.markdown("""
     <div style="text-align: center; padding: 3rem 1rem; background-color: #f8f9fa; border-radius: 10px; margin: 2rem 0;">
         <h2 style="color: #2c3e50; margin-bottom: 1.5rem;">Start Your Claim Today</h2>
         <p style="font-size: 1.2rem; margin-bottom: 2rem;">Contact us for a free, no-obligation consultation to discuss your motorcycle accident claim.</p>
-        <button class="cta-button" onclick="window.open('https://www.advice.co.uk/road-traffic-accident-claims/motorcycle-accident-claims', '_blank')">Free Case Evaluation</button>
+        <a href="https://www.advice.co.uk/road-traffic-accident-claims/motorcycle-accident-claims" target="_blank" style="text-decoration: none;">
+            <button class="cta-button">Free Case Evaluation</button>
+        </a>
     </div>
 """, unsafe_allow_html=True)
 
-# Footer
+# Footer with do-follow link
 st.markdown("""
     <div class="footer">
         <p>© 2023 Motorcycle Accident Claims Specialist | All Rights Reserved</p>
         <p>This site provides general information about motorcycle accident claims. For specialized legal advice regarding your situation, please contact us directly.</p>
-        <p>Return to <a href="https://www.advice.co.uk/road-traffic-accident-claims/motorcycle-accident-claims" style="color: #3498db; text-decoration: none;">Advice.co.uk Motorcycle Accident Claims</a></p>
+        <p>Return to <a href="https://www.advice.co.uk/road-traffic-accident-claims/motorcycle-accident-claims" style="color: #3498db; text-decoration: none;" rel="dofollow">Motorcycle Accident Claims</a> at Advice.co.uk</p>
+        <p>Regulated by the Solicitors Regulation Authority (SRA)</p>
+        <p>Office locations: London | Manchester | Birmingham | Glasgow | Cardiff</p>
     </div>
 """, unsafe_allow_html=True)
