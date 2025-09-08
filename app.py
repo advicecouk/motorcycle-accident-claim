@@ -1,5 +1,4 @@
 import streamlit as st
-import streamlit.components.v1 as components
 import requests
 from datetime import datetime
 
@@ -11,65 +10,75 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Custom CSS for styling - embedded directly
+# Custom CSS for styling
 def local_css():
     st.markdown("""
     <style>
-        /* CSS Reset and Base Styles */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
+        /* Modern CSS with light green, mint green and light blue theme */
         :root {
-            --primary-blue: #1A3A5F;
-            --secondary-blue: #0078D4;
-            --accent-orange: #FF6B00;
-            --light-gray: #F5F7FA;
+            --primary-mint: #6EE7B7;
+            --secondary-mint: #34D399;
+            --light-blue: #BFDBFE;
+            --primary-blue: #3B82F6;
+            --dark-blue: #1D4ED8;
+            --light-gray: #F9FAFB;
             --white: #FFFFFF;
-            --text-dark: #333333;
-            --text-light: #666666;
-            --border-light: #E0E0E0;
-            --shadow: 0 4px 12px rgba(0,0,0,0.08);
+            --text-dark: #1F2937;
+            --text-light: #6B7280;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
             --transition: all 0.3s ease;
         }
         
         body {
-            font-family: 'Open Sans', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: var(--text-dark);
             line-height: 1.6;
             overflow-x: hidden;
+            background-color: var(--light-gray);
         }
         
         h1, h2, h3, h4, h5, h6 {
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 600;
-            line-height: 1.3;
+            font-weight: 700;
+            line-height: 1.2;
             margin-bottom: 1rem;
+            color: var(--dark-blue);
         }
         
         h1 {
-            font-size: 3rem;
-            font-weight: 700;
+            font-size: 3.5rem;
+            background: linear-gradient(135deg, var(--primary-blue), var(--secondary-mint));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
         }
         
         h2 {
-            font-size: 2.2rem;
+            font-size: 2.5rem;
+            text-align: center;
+            position: relative;
+            margin-bottom: 2.5rem;
         }
         
-        h3 {
-            font-size: 1.5rem;
+        h2:after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-blue), var(--secondary-mint));
+            border-radius: 2px;
         }
         
         a {
             text-decoration: none;
-            color: var(--secondary-blue);
+            color: var(--primary-blue);
             transition: var(--transition);
         }
         
         a:hover {
-            color: var(--accent-orange);
+            color: var(--dark-blue);
         }
         
         .container {
@@ -82,59 +91,55 @@ def local_css():
         .btn {
             display: inline-block;
             padding: 14px 28px;
-            font-family: 'Montserrat', sans-serif;
             font-weight: 600;
             font-size: 1rem;
-            border-radius: 4px;
+            border-radius: 50px;
             cursor: pointer;
             transition: var(--transition);
             border: none;
             text-align: center;
+            box-shadow: var(--shadow);
         }
         
         .btn-primary {
-            background-color: var(--accent-orange);
+            background: linear-gradient(135deg, var(--primary-blue), var(--dark-blue));
             color: white;
         }
         
         .btn-primary:hover {
-            background-color: #e55a00;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(255, 107, 0, 0.2);
+            transform: translateY(-3px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
         
         .btn-secondary {
-            background-color: white;
-            color: var(--secondary-blue);
-            border: 2px solid var(--secondary-blue);
+            background: linear-gradient(135deg, var(--primary-mint), var(--secondary-mint));
+            color: var(--text-dark);
         }
         
         .btn-secondary:hover {
-            background-color: var(--secondary-blue);
-            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
         
         .btn-outline {
             background-color: transparent;
-            color: var(--accent-orange);
-            border: 2px solid var(--accent-orange);
+            color: var(--primary-blue);
+            border: 2px solid var(--primary-blue);
         }
         
         .btn-outline:hover {
-            background-color: var(--accent-orange);
+            background-color: var(--primary-blue);
             color: white;
         }
         
         /* Header Styles */
         header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            background-color: white;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            z-index: 1000;
+            background-color: var(--white);
+            box-shadow: var(--shadow);
             padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
         
         .header-container {
@@ -144,73 +149,71 @@ def local_css():
         }
         
         .logo {
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 700;
+            font-weight: 800;
             font-size: 1.8rem;
-            color: var(--primary-blue);
-        }
-        
-        .logo span {
-            color: var(--accent-orange);
+            background: linear-gradient(135deg, var(--primary-blue), var(--secondary-mint));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
         
         .nav-menu {
             display: flex;
             list-style: none;
-        }
-        
-        .nav-menu li {
-            margin-left: 30px;
+            gap: 30px;
         }
         
         .nav-menu a {
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 500;
-            color: var(--primary-blue);
-            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            position: relative;
         }
         
-        .nav-menu a:hover {
-            color: var(--accent-orange);
+        .nav-menu a:after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary-blue), var(--secondary-mint));
+            transition: var(--transition);
+        }
+        
+        .nav-menu a:hover:after {
+            width: 100%;
         }
         
         .header-contact {
             display: flex;
             align-items: center;
+            gap: 20px;
         }
         
         .header-phone {
             display: flex;
             align-items: center;
-            margin-right: 20px;
-            font-weight: 600;
-            color: var(--primary-blue);
+            font-weight: 700;
+            color: var(--dark-blue);
         }
         
         .header-phone i {
             margin-right: 8px;
-            color: var(--accent-orange);
-        }
-        
-        .mobile-toggle {
-            display: none;
-            font-size: 1.5rem;
-            color: var(--primary-blue);
-            cursor: pointer;
+            color: var(--secondary-mint);
         }
         
         /* Hero Section */
         .hero {
-            background: linear-gradient(rgba(26, 58, 95, 0.85), rgba(26, 58, 95, 0.85)), url('https://images.unsplash.com/photo-1558981285-6f0ce9c8cf54?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80') center/cover no-repeat;
+            background: linear-gradient(135deg, rgba(107, 114, 128, 0.8), rgba(55, 65, 81, 0.9)), url('https://images.unsplash.com/photo-1558981285-6f0ce9c8cf54?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80') center/cover no-repeat;
             color: white;
-            padding: 180px 0 100px;
+            padding: 150px 0 100px;
             text-align: center;
+            border-radius: 0 0 50px 50px;
         }
         
         .hero h1 {
-            font-size: 3.5rem;
-            margin-bottom: 1.5rem;
             color: white;
+            -webkit-text-fill-color: white;
+            margin-bottom: 1.5rem;
         }
         
         .hero p {
@@ -224,35 +227,52 @@ def local_css():
             display: flex;
             justify-content: center;
             gap: 20px;
+            flex-wrap: wrap;
         }
         
         /* Trust Indicators */
         .trust-indicators {
-            background-color: var(--light-gray);
-            padding: 30px 0;
-            border-bottom: 1px solid var(--border-light);
+            background-color: var(--white);
+            padding: 40px 0;
+            border-radius: 50px;
+            margin-top: -50px;
+            position: relative;
+            z-index: 10;
+            box-shadow: var(--shadow);
         }
         
         .trust-container {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 30px;
         }
         
         .trust-item {
             display: flex;
             align-items: center;
+            background-color: var(--light-gray);
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+        
+        .trust-item:hover {
+            transform: translateY(-5px);
         }
         
         .trust-item i {
-            font-size: 2rem;
+            font-size: 2.5rem;
             margin-right: 15px;
-            color: var(--accent-orange);
+            color: var(--secondary-mint);
         }
         
         .trust-item h4 {
-            font-size: 1.1rem;
-            margin-bottom: 0;
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+            color: var(--dark-blue);
         }
         
         .trust-item p {
@@ -265,55 +285,71 @@ def local_css():
             padding: 80px 0;
         }
         
-        .section-title {
-            text-align: center;
-            margin-bottom: 3rem;
+        /* Card Styles */
+        .card {
+            background-color: var(--white);
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            padding: 30px;
+            transition: var(--transition);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
         }
         
-        .section-title h2 {
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .card-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
             color: var(--primary-blue);
-            position: relative;
-            display: inline-block;
-        }
-        
-        .section-title h2:after {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 60px;
-            height: 3px;
-            background-color: var(--accent-orange);
         }
         
         /* Introduction Section */
         .intro {
-            background-color: white;
+            background-color: var(--light-gray);
         }
         
         .intro-content {
             display: flex;
             align-items: center;
             gap: 50px;
+            flex-wrap: wrap;
         }
         
         .intro-text {
             flex: 1;
+            min-width: 300px;
         }
         
         .intro-image {
             flex: 1;
+            min-width: 300px;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
         }
         
         .intro-image img {
             width: 100%;
-            border-radius: 8px;
-            box-shadow: var(--shadow);
+            height: auto;
+            display: block;
+            transition: var(--transition);
+        }
+        
+        .intro-image img:hover {
+            transform: scale(1.05);
         }
         
         .benefits {
             margin-top: 30px;
+            background-color: var(--white);
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
         }
         
         .benefits ul {
@@ -322,20 +358,24 @@ def local_css():
         
         .benefits li {
             padding: 12px 0;
-            border-bottom: 1px solid var(--border-light);
+            border-bottom: 1px solid var(--light-gray);
             display: flex;
             align-items: center;
         }
         
+        .benefits li:last-child {
+            border-bottom: none;
+        }
+        
         .benefits li i {
             margin-right: 15px;
-            color: var(--accent-orange);
+            color: var(--secondary-mint);
             font-size: 1.2rem;
         }
         
         /* Eligibility Section */
         .eligibility {
-            background-color: var(--light-gray);
+            background-color: var(--white);
         }
         
         .eligibility-cards {
@@ -345,69 +385,23 @@ def local_css():
             margin-top: 40px;
         }
         
-        .eligibility-card {
-            background-color: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: var(--shadow);
-            text-align: center;
-            transition: var(--transition);
-        }
-        
-        .eligibility-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-        }
-        
-        .eligibility-card i {
-            font-size: 3rem;
-            color: var(--accent-orange);
-            margin-bottom: 20px;
-        }
-        
-        .eligibility-card h3 {
-            color: var(--primary-blue);
-            margin-bottom: 15px;
-        }
-        
         /* Compensation Calculator */
         .compensation {
-            background-color: white;
+            background-color: var(--light-gray);
         }
         
         .calculator {
-            background-color: var(--light-gray);
+            background: linear-gradient(135deg, var(--light-blue), var(--primary-mint));
             padding: 40px;
-            border-radius: 8px;
+            border-radius: 20px;
             margin-top: 40px;
+            box-shadow: var(--shadow);
         }
         
-        .calculator-tabs {
-            display: flex;
-            border-bottom: 2px solid var(--border-light);
+        .calculator h3 {
+            color: var(--dark-blue);
+            text-align: center;
             margin-bottom: 30px;
-        }
-        
-        .calculator-tab {
-            padding: 15px 25px;
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 600;
-            cursor: pointer;
-            border-bottom: 3px solid transparent;
-            transition: var(--transition);
-        }
-        
-        .calculator-tab.active {
-            color: var(--accent-orange);
-            border-bottom-color: var(--accent-orange);
-        }
-        
-        .calculator-content {
-            display: none;
-        }
-        
-        .calculator-content.active {
-            display: block;
         }
         
         .compensation-range {
@@ -416,13 +410,14 @@ def local_css():
             align-items: center;
             margin: 30px 0;
             padding: 20px;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            background-color: var(--white);
+            border-radius: 15px;
+            box-shadow: var(--shadow);
         }
         
         .compensation-min, .compensation-max {
             text-align: center;
+            flex: 1;
         }
         
         .compensation-value {
@@ -439,7 +434,8 @@ def local_css():
         
         .compensation-arrow {
             font-size: 2rem;
-            color: var(--accent-orange);
+            color: var(--secondary-mint);
+            margin: 0 20px;
         }
         
         .disclaimer {
@@ -447,11 +443,12 @@ def local_css():
             color: var(--text-light);
             margin-top: 20px;
             font-style: italic;
+            text-align: center;
         }
         
         /* Financial Losses Section */
         .financial {
-            background-color: var(--light-gray);
+            background-color: var(--white);
         }
         
         .financial-items {
@@ -462,32 +459,32 @@ def local_css():
         }
         
         .financial-item {
-            background-color: white;
+            background-color: var(--light-gray);
             padding: 30px;
-            border-radius: 8px;
+            border-radius: 20px;
             box-shadow: var(--shadow);
             text-align: center;
             transition: var(--transition);
         }
         
         .financial-item:hover {
-            background-color: var(--primary-blue);
+            background: linear-gradient(135deg, var(--primary-blue), var(--dark-blue));
             color: white;
         }
         
-        .financial-item:hover i {
+        .financial-item:hover i, .financial-item:hover h3 {
             color: white;
         }
         
         .financial-item i {
             font-size: 2.5rem;
-            color: var(--accent-orange);
+            color: var(--primary-blue);
             margin-bottom: 20px;
         }
         
         /* Time Limits Section */
         .timeline {
-            background-color: white;
+            background-color: var(--light-gray);
         }
         
         .timeline-container {
@@ -501,7 +498,7 @@ def local_css():
             top: 0;
             height: 100%;
             width: 4px;
-            background-color: var(--border-light);
+            background: linear-gradient(to bottom, var(--primary-blue), var(--secondary-mint));
             transform: translateX(-50%);
         }
         
@@ -511,9 +508,9 @@ def local_css():
         }
         
         .timeline-content {
-            background-color: var(--light-gray);
+            background-color: var(--white);
             padding: 25px;
-            border-radius: 8px;
+            border-radius: 20px;
             width: 45%;
             box-shadow: var(--shadow);
         }
@@ -526,23 +523,30 @@ def local_css():
             position: absolute;
             left: 50%;
             top: 30px;
-            width: 20px;
-            height: 20px;
-            background-color: var(--accent-orange);
+            width: 24px;
+            height: 24px;
+            background-color: var(--secondary-mint);
+            border: 4px solid var(--white);
             border-radius: 50%;
             transform: translateX(-50%);
+            box-shadow: var(--shadow);
         }
         
         .timeline-date {
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 600;
-            color: var(--accent-orange);
+            font-weight: 700;
+            color: var(--primary-blue);
             margin-bottom: 10px;
         }
         
         /* Evidence Section */
         .evidence {
-            background: linear-gradient(rgba(26, 58, 95, 0.9), rgba(26, 58, 95, 0.9)), url('https://images.unsplash.com/photo-1554224154-260325b9e8b5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80') center/cover no-repeat;
+            background: linear-gradient(135deg, var(--primary-blue), var(--dark-blue));
+            color: white;
+            border-radius: 50px;
+            padding: 80px 0;
+        }
+        
+        .evidence h2 {
             color: white;
         }
         
@@ -555,9 +559,9 @@ def local_css():
         
         .evidence-item {
             background-color: rgba(255, 255, 255, 0.1);
-            padding: 20px;
-            border-radius: 8px;
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            border-radius: 20px;
             transition: var(--transition);
         }
         
@@ -567,9 +571,9 @@ def local_css():
         }
         
         .evidence-item i {
-            font-size: 2rem;
+            font-size: 2.5rem;
             margin-bottom: 15px;
-            color: var(--accent-orange);
+            color: var(--primary-mint);
         }
         
         /* Examples Section */
@@ -585,8 +589,8 @@ def local_css():
         }
         
         .example-card {
-            background-color: white;
-            border-radius: 8px;
+            background-color: var(--white);
+            border-radius: 20px;
             overflow: hidden;
             box-shadow: var(--shadow);
             transition: var(--transition);
@@ -594,7 +598,7 @@ def local_css():
         
         .example-card:hover {
             transform: translateY(-10px);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
         
         .example-image {
@@ -617,14 +621,9 @@ def local_css():
             padding: 25px;
         }
         
-        .example-content h3 {
-            color: var(--primary-blue);
-            margin-bottom: 15px;
-        }
-        
         /* Process Section */
         .process {
-            background-color: white;
+            background-color: var(--white);
         }
         
         .process-steps {
@@ -632,6 +631,8 @@ def local_css():
             justify-content: space-between;
             margin-top: 50px;
             position: relative;
+            flex-wrap: wrap;
+            gap: 30px;
         }
         
         .process-steps:after {
@@ -641,21 +642,23 @@ def local_css():
             left: 10%;
             right: 10%;
             height: 4px;
-            background-color: var(--border-light);
+            background: linear-gradient(90deg, var(--primary-blue), var(--secondary-mint));
             z-index: 1;
+            border-radius: 2px;
         }
         
         .process-step {
             position: relative;
             z-index: 2;
             text-align: center;
-            width: 20%;
+            flex: 1;
+            min-width: 200px;
         }
         
         .step-number {
             width: 80px;
             height: 80px;
-            background-color: var(--primary-blue);
+            background: linear-gradient(135deg, var(--primary-blue), var(--dark-blue));
             color: white;
             border-radius: 50%;
             display: flex;
@@ -664,13 +667,13 @@ def local_css():
             font-size: 2rem;
             font-weight: 700;
             margin: 0 auto 20px;
+            box-shadow: var(--shadow);
         }
         
         .step-title {
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 600;
+            font-weight: 700;
             margin-bottom: 10px;
-            color: var(--primary-blue);
+            color: var(--dark-blue);
         }
         
         /* How We Help Section */
@@ -682,20 +685,31 @@ def local_css():
             display: flex;
             align-items: center;
             gap: 50px;
+            flex-wrap: wrap;
         }
         
         .help-image {
             flex: 1;
+            min-width: 300px;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
         }
         
         .help-image img {
             width: 100%;
-            border-radius: 8px;
-            box-shadow: var(--shadow);
+            height: auto;
+            display: block;
+            transition: var(--transition);
+        }
+        
+        .help-image img:hover {
+            transform: scale(1.05);
         }
         
         .help-text {
             flex: 1;
+            min-width: 300px;
         }
         
         .help-list {
@@ -711,16 +725,17 @@ def local_css():
         
         .help-list li i {
             margin-right: 15px;
-            color: var(--accent-orange);
+            color: var(--secondary-mint);
             font-size: 1.2rem;
         }
         
         .no-fee-box {
-            background-color: var(--primary-blue);
+            background: linear-gradient(135deg, var(--primary-blue), var(--dark-blue));
             color: white;
-            padding: 25px;
-            border-radius: 8px;
+            padding: 30px;
+            border-radius: 20px;
             margin-top: 30px;
+            box-shadow: var(--shadow);
         }
         
         .no-fee-box h3 {
@@ -730,13 +745,13 @@ def local_css():
         
         /* Contact Section */
         .contact {
-            background-color: var(--primary-blue);
-            color: white;
+            background: linear-gradient(135deg, var(--light-blue), var(--primary-mint));
             padding: 80px 0;
+            border-radius: 50px;
         }
         
         .contact h2 {
-            color: white;
+            color: var(--dark-blue);
         }
         
         .contact-options {
@@ -744,36 +759,40 @@ def local_css():
             justify-content: space-between;
             gap: 30px;
             margin-top: 40px;
+            flex-wrap: wrap;
         }
         
         .contact-option {
             flex: 1;
-            background-color: rgba(255, 255, 255, 0.1);
+            min-width: 300px;
+            background-color: var(--white);
             padding: 40px;
-            border-radius: 8px;
+            border-radius: 20px;
             text-align: center;
+            box-shadow: var(--shadow);
             transition: var(--transition);
         }
         
         .contact-option:hover {
-            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-10px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
         
         .contact-option i {
             font-size: 3rem;
             margin-bottom: 20px;
-            color: var(--accent-orange);
+            color: var(--primary-blue);
         }
         
         .contact-option h3 {
-            color: white;
+            color: var(--dark-blue);
             margin-bottom: 15px;
         }
         
         .contact-phone {
             font-size: 1.8rem;
             font-weight: 700;
-            color: white;
+            color: var(--dark-blue);
             margin: 15px 0;
         }
         
@@ -789,10 +808,17 @@ def local_css():
         .form-group textarea {
             width: 100%;
             padding: 15px;
-            border: none;
-            border-radius: 4px;
-            font-family: 'Open Sans', sans-serif;
+            border: 1px solid var(--light-gray);
+            border-radius: 10px;
             font-size: 1rem;
+            transition: var(--transition);
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
         
         .form-group textarea {
@@ -802,7 +828,7 @@ def local_css():
         
         /* Footer */
         footer {
-            background-color: #0a192f;
+            background-color: var(--dark-blue);
             color: rgba(255, 255, 255, 0.7);
             padding: 60px 0 30px;
         }
@@ -834,7 +860,7 @@ def local_css():
         }
         
         .footer-column ul li a:hover {
-            color: var(--accent-orange);
+            color: var(--primary-mint);
         }
         
         .footer-bottom {
@@ -851,7 +877,7 @@ def local_css():
             }
             
             h2 {
-                font-size: 1.8rem;
+                font-size: 2rem;
             }
             
             .hero h1 {
@@ -885,18 +911,8 @@ def local_css():
                 left: 30px;
             }
             
-            .process-steps {
-                flex-direction: column;
-                align-items: center;
-            }
-            
             .process-steps:after {
                 display: none;
-            }
-            
-            .process-step {
-                width: 100%;
-                margin-bottom: 30px;
             }
             
             .contact-options {
@@ -906,33 +922,11 @@ def local_css():
         
         @media (max-width: 768px) {
             .nav-menu {
-                position: fixed;
-                top: 70px;
-                left: -100%;
-                width: 100%;
-                height: calc(100vh - 70px);
-                background-color: white;
-                flex-direction: column;
-                align-items: center;
-                justify-content: flex-start;
-                padding-top: 50px;
-                transition: var(--transition);
-            }
-            
-            .nav-menu.active {
-                left: 0;
-            }
-            
-            .nav-menu li {
-                margin: 0 0 30px 0;
+                display: none;
             }
             
             .header-contact {
                 display: none;
-            }
-            
-            .mobile-toggle {
-                display: block;
             }
             
             .trust-container {
@@ -976,20 +970,6 @@ def local_css():
                 font-size: 0.9rem;
             }
             
-            .section-title h2:after {
-                width: 40px;
-            }
-            
-            .calculator-tabs {
-                flex-direction: column;
-                border-bottom: none;
-            }
-            
-            .calculator-tab {
-                border-bottom: 1px solid var(--border-light);
-                padding: 12px;
-            }
-            
             .compensation-range {
                 flex-direction: column;
                 gap: 20px;
@@ -1007,13 +987,22 @@ def local_css():
         
         .stTextInput > div > div > input {
             padding: 15px;
-            border-radius: 4px;
+            border-radius: 10px;
+            border: 1px solid var(--light-gray);
         }
         
         .stTextArea > div > div > textarea {
             padding: 15px;
-            border-radius: 4px;
+            border-radius: 10px;
+            border: 1px solid var(--light-gray);
             min-height: 120px;
+        }
+        
+        .stTextInput > div > div > input:focus,
+        .stTextArea > div > div > textarea:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
     </style>
     """, unsafe_allow_html=True)
@@ -1046,9 +1035,9 @@ def header():
                 <i class="fas fa-phone-alt"></i>
                 <span>0161 696 9685</span>
             </div>
+            <a href="https://www.advice.co.uk/road-traffic-accident-claims/motorcycle-accident-claims" class="btn btn-primary">Get Free Advice</a>
         </div>
         """, unsafe_allow_html=True)
-        st.markdown("[Get Free Advice](https://www.advice.co.uk/road-traffic-accident-claims/motorcycle-accident-claims)", unsafe_allow_html=True)
 
 # Hero section
 def hero_section():
@@ -1138,18 +1127,18 @@ def eligibility_section():
             </div>
             <p>If you suffered harm in a motorcycle accident due to a breached duty of care, you could be eligible to claim. The eligibility criteria are:</p>
             <div class="eligibility-cards">
-                <div class="eligibility-card">
-                    <i class="fas fa-handshake"></i>
+                <div class="card">
+                    <i class="fas fa-handshake card-icon"></i>
                     <h3>Duty of Care Owed</h3>
                     <p>You were owed a duty of care by another road user. All road users have a legal obligation to take reasonable steps to ensure your safety.</p>
                 </div>
-                <div class="eligibility-card">
-                    <i class="fas fa-exclamation-triangle"></i>
+                <div class="card">
+                    <i class="fas fa-exclamation-triangle card-icon"></i>
                     <h3>Breach of Duty</h3>
                     <p>This duty of care was breached by the other party through negligent or reckless behavior such as speeding, distraction, or failing to follow road rules.</p>
                 </div>
-                <div class="eligibility-card">
-                    <i class="fas fa-user-injured"></i>
+                <div class="card">
+                    <i class="fas fa-user-injured card-icon"></i>
                     <h3>Harm Suffered</h3>
                     <p>You suffered harm as a result of this breach, including physical injuries, psychological trauma, or financial losses due to the accident.</p>
                 </div>
@@ -1177,70 +1166,78 @@ def compensation_calculator():
     
     with calculator_tabs[0]:
         st.markdown("""
-        <h3>Head Injury Compensation</h3>
-        <div class="compensation-range">
-            <div class="compensation-min">
-                <div class="compensation-value">£344,150</div>
-                <div class="compensation-label">Minimum</div>
+        <div class="calculator">
+            <h3>Head Injury Compensation</h3>
+            <div class="compensation-range">
+                <div class="compensation-min">
+                    <div class="compensation-value">£344,150</div>
+                    <div class="compensation-label">Minimum</div>
+                </div>
+                <div class="compensation-arrow">→</div>
+                <div class="compensation-max">
+                    <div class="compensation-value">£493,000</div>
+                    <div class="compensation-label">Maximum</div>
+                </div>
             </div>
-            <div class="compensation-arrow">→</div>
-            <div class="compensation-max">
-                <div class="compensation-value">£493,000</div>
-                <div class="compensation-label">Maximum</div>
-            </div>
+            <p>For very severe brain and head injuries resulting in double incontinence, little ability to follow basic commands, and full-time nursing care required. This includes traumatic brain injuries that significantly impact quality of life and cognitive function.</p>
         </div>
-        <p>For very severe brain and head injuries resulting in double incontinence, little ability to follow basic commands, and full-time nursing care required. This includes traumatic brain injuries that significantly impact quality of life and cognitive function.</p>
         """, unsafe_allow_html=True)
     
     with calculator_tabs[1]:
         st.markdown("""
-        <h3>Back Injury Compensation</h3>
-        <div class="compensation-range">
-            <div class="compensation-min">
-                <div class="compensation-value">£90,510</div>
-                <div class="compensation-label">Minimum</div>
+        <div class="calculator">
+            <h3>Back Injury Compensation</h3>
+            <div class="compensation-range">
+                <div class="compensation-min">
+                    <div class="compensation-value">£90,510</div>
+                    <div class="compensation-label">Minimum</div>
+                </div>
+                <div class="compensation-arrow">→</div>
+                <div class="compensation-max">
+                    <div class="compensation-value">£196,450</div>
+                    <div class="compensation-label">Maximum</div>
+                </div>
             </div>
-            <div class="compensation-arrow">→</div>
-            <div class="compensation-max">
-                <div class="compensation-value">£196,450</div>
-                <div class="compensation-label">Maximum</div>
-            </div>
+            <p>For severe back injuries including damage to the spinal cord and nerve roots causing ongoing serious disability. These injuries often result in chronic pain, limited mobility, and may require surgery or long-term treatment.</p>
         </div>
-        <p>For severe back injuries including damage to the spinal cord and nerve roots causing ongoing serious disability. These injuries often result in chronic pain, limited mobility, and may require surgery or long-term treatment.</p>
         """, unsafe_allow_html=True)
     
     with calculator_tabs[2]:
         st.markdown("""
-        <h3>Neck Injury Compensation</h3>
-        <div class="compensation-range">
-            <div class="compensation-min">
-                <div class="compensation-value">£80,240</div>
-                <div class="compensation-label">Minimum</div>
+        <div class="calculator">
+            <h3>Neck Injury Compensation</h3>
+            <div class="compensation-range">
+                <div class="compensation-min">
+                    <div class="compensation-value">£80,240</div>
+                    <div class="compensation-label">Minimum</div>
+                </div>
+                <div class="compensation-arrow">→</div>
+                <div class="compensation-max">
+                    <div class="compensation-value">£181,020</div>
+                    <div class="compensation-label">Maximum</div>
+                </div>
             </div>
-            <div class="compensation-arrow">→</div>
-            <div class="compensation-max">
-                <div class="compensation-value">£181,020</div>
-                <div class="compensation-label">Maximum</div>
-            </div>
+            <p>For severe neck injuries including incomplete paraplegia or permanent spastic quadriparesis. These injuries can severely impact daily activities, work capabilities, and overall quality of life.</p>
         </div>
-        <p>For severe neck injuries including incomplete paraplegia or permanent spastic quadriparesis. These injuries can severely impact daily activities, work capabilities, and overall quality of life.</p>
         """, unsafe_allow_html=True)
     
     with calculator_tabs[3]:
         st.markdown("""
-        <h3>Leg Injury Compensation</h3>
-        <div class="compensation-range">
-            <div class="compensation-min">
-                <div class="compensation-value">£66,920</div>
-                <div class="compensation-label">Minimum</div>
+        <div class="calculator">
+            <h3>Leg Injury Compensation</h3>
+            <div class="compensation-range">
+                <div class="compensation-min">
+                    <div class="compensation-value">£66,920</div>
+                    <div class="compensation-label">Minimum</div>
+                </div>
+                <div class="compensation-arrow">→</div>
+                <div class="compensation-max">
+                    <div class="compensation-value">£165,860</div>
+                    <div class="compensation-label">Maximum</div>
+                </div>
             </div>
-            <div class="compensation-arrow">→</div>
-            <div class="compensation-max">
-                <div class="compensation-value">£165,860</div>
-                <div class="compensation-label">Maximum</div>
-            </div>
+            <p>For the most serious leg injuries short of amputation, including extensive degloving or other extremely serious injuries. These injuries often result in permanent mobility issues and may require multiple surgeries.</p>
         </div>
-        <p>For the most serious leg injuries short of amputation, including extensive degloving or other extremely serious injuries. These injuries often result in permanent mobility issues and may require multiple surgeries.</p>
         """, unsafe_allow_html=True)
     
     st.markdown("""
@@ -1351,7 +1348,7 @@ def evidence_section():
     <section class="evidence">
         <div class="container">
             <div class="section-title">
-                <h2 style="color: white;">What Evidence Will I Need?</h2>
+                <h2>What Evidence Will I Need?</h2>
             </div>
             <p>You will need evidence such as CCTV footage, photos, and the contact details of witnesses to make a claim. It needs to prove liability for the injuries you sustained.</p>
             
@@ -1613,9 +1610,6 @@ def footer():
 def main():
     # Load Font Awesome
     st.markdown('<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">', unsafe_allow_html=True)
-    
-    # Load Google Fonts
-    st.markdown('<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">', unsafe_allow_html=True)
     
     # Apply custom CSS
     local_css()
