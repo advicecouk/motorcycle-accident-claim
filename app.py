@@ -1,1635 +1,433 @@
 import streamlit as st
-import requests
-from datetime import datetime
+import streamlit.components.v1 as components
 
 # Set page configuration
 st.set_page_config(
-    page_title="Motorcycle Accident Claims | Expert Solicitors | No Win No Fee",
+    page_title="Motorcycle Accident Claims: Your Guide To Compensation",
     page_icon="🏍️",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
 
 # Custom CSS for styling
-def local_css():
-    st.markdown("""
-    <style>
-        /* Modern CSS with light green, mint green and light blue theme */
-        :root {
-            --primary-mint: #6EE7B7;
-            --secondary-mint: #34D399;
-            --light-blue: #BFDBFE;
-            --primary-blue: #3B82F6;
-            --dark-blue: #1D4ED8;
-            --light-gray: #F9FAFB;
-            --white: #FFFFFF;
-            --text-dark: #1F2937;
-            --text-light: #6B7280;
-            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            --transition: all 0.3s ease;
+st.markdown("""
+<style>
+    /* Global styles */
+    .main {
+        padding: 0;
+    }
+    .stApp {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    /* Navigation */
+    .navbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        background-color: #1a237e;
+        color: white;
+        padding: 10px 0;
+        z-index: 1000;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .nav-container {
+        display: flex;
+        justify-content: center;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+    .nav-item {
+        margin: 0 15px;
+        color: white;
+        text-decoration: none;
+        font-weight: 500;
+        padding: 5px 10px;
+        border-radius: 4px;
+        transition: background-color 0.3s;
+    }
+    .nav-item:hover {
+        background-color: #283593;
+        color: white;
+    }
+    
+    /* Hero section */
+    .hero {
+        background: linear-gradient(rgba(26, 35, 126, 0.8), rgba(26, 35, 126, 0.8)), url('https://images.unsplash.com/photo-1558980663-3685c1d673c4?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
+        background-size: cover;
+        background-position: center;
+        color: white;
+        padding: 120px 20px 80px;
+        text-align: center;
+        margin-top: 60px;
+    }
+    
+    /* Cards */
+    .card {
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        padding: 25px;
+        margin: 20px 0;
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    
+    /* Buttons */
+    .stButton button {
+        background-color: #1a237e;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 6px;
+        font-weight: 600;
+        transition: background-color 0.3s;
+    }
+    .stButton button:hover {
+        background-color: #283593;
+        color: white;
+    }
+    
+    /* Contact form */
+    .contact-form {
+        background-color: #f5f5f5;
+        padding: 30px;
+        border-radius: 10px;
+        margin: 30px 0;
+    }
+    
+    /* Footer */
+    .footer {
+        background-color: #1a237e;
+        color: white;
+        padding: 20px;
+        text-align: center;
+        margin-top: 50px;
+    }
+    .footer a {
+        color: white;
+        margin: 0 10px;
+        text-decoration: none;
+    }
+    
+    /* Floating button */
+    .floating-btn {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        background-color: #d32f2f;
+        color: white;
+        border: none;
+        border-radius: 50px;
+        padding: 15px 25px;
+        font-weight: 600;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        z-index: 999;
+        cursor: pointer;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .nav-container {
+            flex-wrap: wrap;
         }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: var(--text-dark);
-            line-height: 1.6;
-            overflow-x: hidden;
-            background-color: var(--light-gray);
+        .nav-item {
+            margin: 5px;
+            font-size: 14px;
         }
-        
-        h1, h2, h3, h4, h5, h6 {
-            font-weight: 700;
-            line-height: 1.2;
-            margin-bottom: 1rem;
-            color: var(--dark-blue);
-        }
-        
-        h1 {
-            font-size: 3.5rem;
-            background: linear-gradient(135deg, var(--primary-blue), var(--secondary-mint));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-align: center;
-        }
-        
-        h2 {
-            font-size: 2.5rem;
-            text-align: center;
-            position: relative;
-            margin-bottom: 2.5rem;
-        }
-        
-        h2:after {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 80px;
-            height: 4px;
-            background: linear-gradient(90deg, var(--primary-blue), var(--secondary-mint));
-            border-radius: 2px;
-        }
-        
-        a {
-            text-decoration: none;
-            color: var(--primary-blue);
-            transition: var(--transition);
-        }
-        
-        a:hover {
-            color: var(--dark-blue);
-        }
-        
-        .container {
-            width: 100%;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-        
-        .btn {
-            display: inline-block;
-            padding: 14px 28px;
-            font-weight: 600;
-            font-size: 1rem;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: var(--transition);
-            border: none;
-            text-align: center;
-            box-shadow: var(--shadow);
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary-blue), var(--dark-blue));
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        }
-        
-        .btn-secondary {
-            background: linear-gradient(135deg, var(--primary-mint), var(--secondary-mint));
-            color: var(--text-dark);
-        }
-        
-        .btn-secondary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        }
-        
-        .btn-outline {
-            background-color: transparent;
-            color: var(--primary-blue);
-            border: 2px solid var(--primary-blue);
-        }
-        
-        .btn-outline:hover {
-            background-color: var(--primary-blue);
-            color: white;
-        }
-        
-        /* Header Styles */
-        header {
-            background-color: var(--white);
-            box-shadow: var(--shadow);
-            padding: 15px 0;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        
-        .header-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .logo {
-            font-weight: 800;
-            font-size: 1.8rem;
-            background: linear-gradient(135deg, var(--primary-blue), var(--secondary-mint));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        
-        .nav-menu {
-            display: flex;
-            list-style: none;
-            gap: 30px;
-        }
-        
-        .nav-menu a {
-            font-weight: 600;
-            color: var(--text-dark);
-            position: relative;
-        }
-        
-        .nav-menu a:after {
-            content: '';
-            position: absolute;
-            bottom: -5px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: linear-gradient(90deg, var(--primary-blue), var(--secondary-mint));
-            transition: var(--transition);
-        }
-        
-        .nav-menu a:hover:after {
-            width: 100%;
-        }
-        
-        .header-contact {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-        
-        .header-phone {
-            display: flex;
-            align-items: center;
-            font-weight: 700;
-            color: var(--dark-blue);
-        }
-        
-        .header-phone i {
-            margin-right: 8px;
-            color: var(--secondary-mint);
-        }
-        
-        /* Hero Section */
         .hero {
-            background: linear-gradient(135deg, rgba(107, 114, 128, 0.8), rgba(55, 65, 81, 0.9)), url('https://images.unsplash.com/photo-1558981285-6f0ce9c8cf54?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80') center/cover no-repeat;
-            color: white;
-            padding: 150px 0 100px;
-            text-align: center;
-            border-radius: 0 0 50px 50px;
-        }
-        
-        .hero h1 {
-            color: white;
-            -webkit-text-fill-color: white;
-            margin-bottom: 1.5rem;
-        }
-        
-        .hero p {
-            font-size: 1.3rem;
-            max-width: 800px;
-            margin: 0 auto 2.5rem;
-            color: rgba(255, 255, 255, 0.9);
-        }
-        
-        .hero-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-        
-        /* Trust Indicators */
-        .trust-indicators {
-            background-color: var(--white);
-            padding: 40px 0;
-            border-radius: 50px;
-            margin-top: -50px;
-            position: relative;
-            z-index: 10;
-            box-shadow: var(--shadow);
-        }
-        
-        .trust-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 30px;
-        }
-        
-        .trust-item {
-            display: flex;
-            align-items: center;
-            background-color: var(--light-gray);
-            padding: 20px;
-            border-radius: 20px;
-            box-shadow: var(--shadow);
-            transition: var(--transition);
-        }
-        
-        .trust-item:hover {
-            transform: translateY(-5px);
-        }
-        
-        .trust-item i {
-            font-size: 2.5rem;
-            margin-right: 15px;
-            color: var(--secondary-mint);
-        }
-        
-        .trust-item h4 {
-            font-size: 1.2rem;
-            margin-bottom: 5px;
-            color: var(--dark-blue);
-        }
-        
-        .trust-item p {
-            font-size: 0.9rem;
-            color: var(--text-light);
-        }
-        
-        /* Section Styles */
-        section {
-            padding: 80px 0;
-        }
-        
-        /* Card Styles */
-        .card {
-            background-color: var(--white);
-            border-radius: 20px;
-            box-shadow: var(--shadow);
-            padding: 30px;
-            transition: var(--transition);
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        }
-        
-        .card-icon {
-            font-size: 3rem;
-            margin-bottom: 20px;
-            color: var(--primary-blue);
-        }
-        
-        /* Introduction Section */
-        .intro {
-            background-color: var(--light-gray);
-        }
-        
-        .intro-content {
-            display: flex;
-            align-items: center;
-            gap: 50px;
-            flex-wrap: wrap;
-        }
-        
-        .intro-text {
-            flex: 1;
-            min-width: 300px;
-        }
-        
-        .intro-image {
-            flex: 1;
-            min-width: 300px;
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: var(--shadow);
-        }
-        
-        .intro-image img {
-            width: 100%;
-            height: auto;
-            display: block;
-            transition: var(--transition);
-        }
-        
-        .intro-image img:hover {
-            transform: scale(1.05);
-        }
-        
-        .benefits {
-            margin-top: 30px;
-            background-color: var(--white);
-            padding: 25px;
-            border-radius: 20px;
-            box-shadow: var(--shadow);
-        }
-        
-        .benefits ul {
-            list-style: none;
-        }
-        
-        .benefits li {
-            padding: 12px 0;
-            border-bottom: 1px solid var(--light-gray);
-            display: flex;
-            align-items: center;
-        }
-        
-        .benefits li:last-child {
-            border-bottom: none;
-        }
-        
-        .benefits li i {
-            margin-right: 15px;
-            color: var(--secondary-mint);
-            font-size: 1.2rem;
-        }
-        
-        /* Eligibility Section */
-        .eligibility {
-            background-color: var(--white);
-        }
-        
-        .eligibility-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-            margin-top: 40px;
-        }
-        
-        /* Compensation Calculator */
-        .compensation {
-            background-color: var(--light-gray);
-        }
-        
-        .calculator {
-            background: linear-gradient(135deg, var(--light-blue), var(--primary-mint));
-            padding: 40px;
-            border-radius: 20px;
-            margin-top: 40px;
-            box-shadow: var(--shadow);
-        }
-        
-        .calculator h3 {
-            color: var(--dark-blue);
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        
-        .compensation-range {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin: 30px 0;
-            padding: 20px;
-            background-color: var(--white);
-            border-radius: 15px;
-            box-shadow: var(--shadow);
-        }
-        
-        .compensation-min, .compensation-max {
-            text-align: center;
-            flex: 1;
-        }
-        
-        .compensation-value {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--primary-blue);
-            margin-bottom: 5px;
-        }
-        
-        .compensation-label {
-            color: var(--text-light);
-            font-size: 0.9rem;
-        }
-        
-        .compensation-arrow {
-            font-size: 2rem;
-            color: var(--secondary-mint);
-            margin: 0 20px;
-        }
-        
-        .disclaimer {
-            font-size: 0.9rem;
-            color: var(--text-light);
-            margin-top: 20px;
-            font-style: italic;
-            text-align: center;
-        }
-        
-        /* Financial Losses Section */
-        .financial {
-            background-color: var(--white);
-        }
-        
-        .financial-items {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 30px;
-            margin-top: 40px;
-        }
-        
-        .financial-item {
-            background-color: var(--light-gray);
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: var(--shadow);
-            text-align: center;
-            transition: var(--transition);
-        }
-        
-        .financial-item:hover {
-            background: linear-gradient(135deg, var(--primary-blue), var(--dark-blue));
-            color: white;
-        }
-        
-        .financial-item:hover i, .financial-item:hover h3 {
-            color: white;
-        }
-        
-        .financial-item i {
-            font-size: 2.5rem;
-            color: var(--primary-blue);
-            margin-bottom: 20px;
-        }
-        
-        /* Time Limits Section */
-        .timeline {
-            background-color: var(--light-gray);
-        }
-        
-        .timeline-container {
-            position: relative;
-            margin-top: 40px;
-        }
-        
-        .timeline-line {
-            position: absolute;
-            left: 50%;
-            top: 0;
-            height: 100%;
-            width: 4px;
-            background: linear-gradient(to bottom, var(--primary-blue), var(--secondary-mint));
-            transform: translateX(-50%);
-        }
-        
-        .timeline-item {
-            position: relative;
-            margin-bottom: 50px;
-        }
-        
-        .timeline-content {
-            background-color: var(--white);
-            padding: 25px;
-            border-radius: 20px;
-            width: 45%;
-            box-shadow: var(--shadow);
-        }
-        
-        .timeline-item:nth-child(odd) .timeline-content {
-            margin-left: auto;
-        }
-        
-        .timeline-dot {
-            position: absolute;
-            left: 50%;
-            top: 30px;
-            width: 24px;
-            height: 24px;
-            background-color: var(--secondary-mint);
-            border: 4px solid var(--white);
-            border-radius: 50%;
-            transform: translateX(-50%);
-            box-shadow: var(--shadow);
-        }
-        
-        .timeline-date {
-            font-weight: 700;
-            color: var(--primary-blue);
-            margin-bottom: 10px;
-        }
-        
-        /* Evidence Section */
-        .evidence {
-            background: linear-gradient(135deg, var(--primary-blue), var(--dark-blue));
-            color: white;
-            border-radius: 50px;
-            padding: 80px 0;
-        }
-        
-        .evidence h2 {
-            color: white;
-        }
-        
-        .evidence-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-top: 40px;
-        }
-        
-        .evidence-item {
-            background-color: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            padding: 25px;
-            border-radius: 20px;
-            transition: var(--transition);
-        }
-        
-        .evidence-item:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-            transform: translateY(-5px);
-        }
-        
-        .evidence-item i {
-            font-size: 2.5rem;
-            margin-bottom: 15px;
-            color: var(--primary-mint);
-        }
-        
-        /* Examples Section */
-        .examples {
-            background-color: var(--light-gray);
-        }
-        
-        .example-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-            margin-top: 40px;
-        }
-        
-        .example-card {
-            background-color: var(--white);
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: var(--shadow);
-            transition: var(--transition);
-        }
-        
-        .example-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        }
-        
-        .example-image {
-            height: 200px;
-            overflow: hidden;
-        }
-        
-        .example-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: var(--transition);
-        }
-        
-        .example-card:hover .example-image img {
-            transform: scale(1.1);
-        }
-        
-        .example-content {
-            padding: 25px;
-        }
-        
-        /* Process Section */
-        .process {
-            background-color: var(--white);
-        }
-        
-        .process-steps {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 50px;
-            position: relative;
-            flex-wrap: wrap;
-            gap: 30px;
-        }
-        
-        .process-steps:after {
-            content: '';
-            position: absolute;
-            top: 40px;
-            left: 10%;
-            right: 10%;
-            height: 4px;
-            background: linear-gradient(90deg, var(--primary-blue), var(--secondary-mint));
-            z-index: 1;
-            border-radius: 2px;
-        }
-        
-        .process-step {
-            position: relative;
-            z-index: 2;
-            text-align: center;
-            flex: 1;
-            min-width: 200px;
-        }
-        
-        .step-number {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, var(--primary-blue), var(--dark-blue));
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            font-weight: 700;
-            margin: 0 auto 20px;
-            box-shadow: var(--shadow);
-        }
-        
-        .step-title {
-            font-weight: 700;
-            margin-bottom: 10px;
-            color: var(--dark-blue);
-        }
-        
-        /* How We Help Section */
-        .help {
-            background-color: var(--light-gray);
-        }
-        
-        .help-content {
-            display: flex;
-            align-items: center;
-            gap: 50px;
-            flex-wrap: wrap;
-        }
-        
-        .help-image {
-            flex: 1;
-            min-width: 300px;
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: var(--shadow);
-        }
-        
-        .help-image img {
-            width: 100%;
-            height: auto;
-            display: block;
-            transition: var(--transition);
-        }
-        
-        .help-image img:hover {
-            transform: scale(1.05);
-        }
-        
-        .help-text {
-            flex: 1;
-            min-width: 300px;
-        }
-        
-        .help-list {
-            list-style: none;
-            margin: 25px 0;
-        }
-        
-        .help-list li {
-            padding: 12px 0;
-            display: flex;
-            align-items: center;
-        }
-        
-        .help-list li i {
-            margin-right: 15px;
-            color: var(--secondary-mint);
-            font-size: 1.2rem;
-        }
-        
-        .no-fee-box {
-            background: linear-gradient(135deg, var(--primary-blue), var(--dark-blue));
-            color: white;
-            padding: 30px;
-            border-radius: 20px;
-            margin-top: 30px;
-            box-shadow: var(--shadow);
-        }
-        
-        .no-fee-box h3 {
-            color: white;
-            margin-bottom: 15px;
-        }
-        
-        /* Contact Section */
-        .contact {
-            background: linear-gradient(135deg, var(--light-blue), var(--primary-mint));
-            padding: 80px 0;
-            border-radius: 50px;
-        }
-        
-        .contact h2 {
-            color: var(--dark-blue);
-        }
-        
-        .contact-options {
-            display: flex;
-            justify-content: space-between;
-            gap: 30px;
-            margin-top: 40px;
-            flex-wrap: wrap;
-        }
-        
-        .contact-option {
-            flex: 1;
-            min-width: 300px;
-            background-color: var(--white);
-            padding: 40px;
-            border-radius: 20px;
-            text-align: center;
-            box-shadow: var(--shadow);
-            transition: var(--transition);
-        }
-        
-        .contact-option:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        }
-        
-        .contact-option i {
-            font-size: 3rem;
-            margin-bottom: 20px;
-            color: var(--primary-blue);
-        }
-        
-        .contact-option h3 {
-            color: var(--dark-blue);
-            margin-bottom: 15px;
-        }
-        
-        .contact-phone {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: var(--dark-blue);
-            margin: 15px 0;
-        }
-        
-        .contact-form {
-            margin-top: 20px;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        .form-group input,
-        .form-group textarea {
-            width: 100%;
-            padding: 15px;
-            border: 1px solid var(--light-gray);
-            border-radius: 10px;
-            font-size: 1rem;
-            transition: var(--transition);
-        }
-        
-        .form-group input:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: var(--primary-blue);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-        
-        .form-group textarea {
-            resize: vertical;
-            min-height: 120px;
-        }
-        
-        /* Footer */
-        footer {
-            background-color: var(--dark-blue);
-            color: rgba(255, 255, 255, 0.7);
-            padding: 60px 0 30px;
-        }
-        
-        .footer-content {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 40px;
-            margin-bottom: 40px;
-        }
-        
-        .footer-column h3 {
-            color: white;
-            margin-bottom: 20px;
-            font-size: 1.3rem;
-        }
-        
-        .footer-column ul {
-            list-style: none;
-        }
-        
-        .footer-column ul li {
-            margin-bottom: 12px;
-        }
-        
-        .footer-column ul li a {
-            color: rgba(255, 255, 255, 0.7);
-            transition: var(--transition);
-        }
-        
-        .footer-column ul li a:hover {
-            color: var(--primary-mint);
-        }
-        
-        .footer-bottom {
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            padding-top: 30px;
-            text-align: center;
-            font-size: 0.9rem;
-        }
-        
-        /* Responsive Styles */
-        @media (max-width: 992px) {
-            h1 {
-                font-size: 2.8rem;
-            }
-            
-            h2 {
-                font-size: 2rem;
-            }
-            
-            .hero h1 {
-                font-size: 2.5rem;
-            }
-            
-            .hero p {
-                font-size: 1.1rem;
-            }
-            
-            .hero-buttons {
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            .intro-content,
-            .help-content {
-                flex-direction: column;
-            }
-            
-            .timeline-line {
-                left: 30px;
-            }
-            
-            .timeline-content {
-                width: calc(100% - 60px);
-                margin-left: 60px !important;
-            }
-            
-            .timeline-dot {
-                left: 30px;
-            }
-            
-            .process-steps:after {
-                display: none;
-            }
-            
-            .contact-options {
-                flex-direction: column;
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .nav-menu {
-                display: none;
-            }
-            
-            .header-contact {
-                display: none;
-            }
-            
-            .trust-container {
-                flex-direction: column;
-                gap: 20px;
-            }
-            
-            .timeline-line {
-                display: none;
-            }
-            
-            .timeline-content {
-                width: 100%;
-                margin-left: 0 !important;
-            }
-            
-            .timeline-dot {
-                display: none;
-            }
-        }
-        
-        @media (max-width: 576px) {
-            h1 {
-                font-size: 2.2rem;
-            }
-            
-            h2 {
-                font-size: 1.5rem;
-            }
-            
-            .hero h1 {
-                font-size: 2rem;
-            }
-            
-            .hero p {
-                font-size: 1rem;
-            }
-            
-            .btn {
-                padding: 12px 20px;
-                font-size: 0.9rem;
-            }
-            
-            .compensation-range {
-                flex-direction: column;
-                gap: 20px;
-            }
-            
-            .compensation-arrow {
-                transform: rotate(90deg);
-            }
-        }
-        
-        /* Streamlit-specific adjustments */
-        .stTabs {
-            margin-bottom: 30px;
-        }
-        
-        .stTextInput > div > div > input {
-            padding: 15px;
-            border-radius: 10px;
-            border: 1px solid var(--light-gray);
-        }
-        
-        .stTextArea > div > div > textarea {
-            padding: 15px;
-            border-radius: 10px;
-            border: 1px solid var(--light-gray);
-            min-height: 120px;
-        }
-        
-        .stTextInput > div > div > input:focus,
-        .stTextArea > div > div > textarea:focus {
-            outline: none;
-            border-color: var(--primary-blue);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-    </style>
-    """, unsafe_allow_html=True)
+            padding: 100px 15px 60px;
+        }
+    }
+</style>
+""", unsafe_allow_html=True)
 
-# Header section
-def header():
-    col1, col2, col3 = st.columns([1, 2, 1])
-    
-    with col1:
-        st.markdown("""
-        <div class="logo">
-            Advice<span>.co.uk</span>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    with col2:
-        st.markdown("""
-        <ul class="nav-menu">
-            <li><a href="https://www.advice.co.uk/">Home</a></li>
-            <li><a href="https://www.advice.co.uk/">Services</a></li>
-            <li><a href="https://www.advice.co.uk/road-traffic-accident-claims/motorcycle-accident-claims">Motorcycle Accident Claims</a></li>
-            <li><a href="https://www.advice.co.uk/contact-us">Contact</a></li>
-        </ul>
-        """, unsafe_allow_html=True)
-    
-    with col3:
-        st.markdown("""
-        <div class="header-contact">
-            <div class="header-phone">
-                <i class="fas fa-phone-alt"></i>
-                <span>0161 696 9685</span>
-            </div>
-            <a href="https://www.advice.co.uk/road-traffic-accident-claims/motorcycle-accident-claims" class="btn btn-primary">Get Free Advice</a>
-        </div>
-        """, unsafe_allow_html=True)
+# Navigation bar
+st.markdown("""
+<div class="navbar">
+    <div class="nav-container">
+        <a href="#hero" class="nav-item">Home</a>
+        <a href="#vulnerable" class="nav-item">Why Vulnerable</a>
+        <a href="#eligibility" class="nav-item">Eligibility</a>
+        <a href="#compensation" class="nav-item">Compensation</a>
+        <a href="#timeline" class="nav-item">Timeline</a>
+        <a href="#evidence" class="nav-item">Evidence</a>
+        <a href="#process" class="nav-item">Process</a>
+        <a href="#support" class="nav-item">Legal Support</a>
+        <a href="#contact" class="nav-item">Contact</a>
+    </div>
+</div>
+""", unsafe_allow_html=True)
 
 # Hero section
-def hero_section():
-    st.markdown("""
-    <section class="hero">
-        <div class="container">
-            <h1>Expert Motorcycle Accident Claims Solicitors</h1>
-            <p>Maximum Compensation. 100% No Win No Fee. Free Advice 24/7.</p>
-            <div class="hero-buttons">
-                <a href="https://www.advice.co.uk/road-traffic-accident-claims/motorcycle-accident-claims" class="btn btn-primary">Get Free Advice Now</a>
-                <a href="tel:01616969685" class="btn btn-secondary">Call Us: 0161 696 9685</a>
-            </div>
-        </div>
-    </section>
-    """, unsafe_allow_html=True)
+st.markdown("""
+<div class="hero" id="hero">
+    <h1 style="font-size: 2.8rem; margin-bottom: 20px;">Motorcycle Accident Claims: Your Guide To Compensation</h1>
+    <p style="font-size: 1.4rem; margin-bottom: 30px; max-width: 800px; margin-left: auto; margin-right: auto;">
+        Understand your rights, the claims process, and how to secure the compensation you deserve after a motorcycle accident.
+    </p>
+    <a href="https://www.advice.co.uk" target="_blank">
+        <button style="background-color: #d32f2f; color: white; border: none; padding: 15px 30px; border-radius: 6px; font-size: 1.1rem; font-weight: 600; cursor: pointer;">
+            Get Free Legal Advice
+        </button>
+    </a>
+</div>
+""", unsafe_allow_html=True)
 
-# Trust indicators section
-def trust_indicators():
-    st.markdown("""
-    <section class="trust-indicators">
-        <div class="container">
-            <div class="trust-container">
-                <div class="trust-item">
-                    <i class="fas fa-certificate"></i>
-                    <div>
-                        <h4>Authorised and Regulated</h4>
-                        <p>By the Financial Conduct Authority</p>
-                    </div>
-                </div>
-                <div class="trust-item">
-                    <i class="fas fa-clock"></i>
-                    <div>
-                        <h4>24/7 Free Advice</h4>
-                        <p>Available 7 days a week</p>
-                    </div>
-                </div>
-                <div class="trust-item">
-                    <i class="fas fa-shield-alt"></i>
-                    <div>
-                        <h4>No Win No Fee Guarantee</h4>
-                        <p>No upfront costs required</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    """, unsafe_allow_html=True)
-
-# Introduction section
-def introduction_section():
-    st.markdown("""
-    <section class="intro">
-        <div class="container">
-            <div class="section-title">
-                <h2>Your Guide to Motorcycle Accident Claims</h2>
-            </div>
-            <div class="intro-content">
-                <div class="intro-text">
-                    <p>If you've been injured in a motorcycle accident that wasn't your fault, you may be entitled to compensation. Our expert solicitors specialize in <a href="https://www.advice.co.uk/road-traffic-accident-claims/motorcycle-accident-claims">motorcycle accident claims</a> and can help you get the compensation you deserve.</p>
-                    <p>Being involved in a road accident can affect your life financially, physically, and mentally, but deciding to claim could help you move forward. Our panel of solicitors will guide you through the entire process with expert advice and support.</p>
-                    <p>With years of experience handling <a href="https://www.advice.co.uk/road-traffic-accident-claims/motorcycle-accident-claims">motorcycle injury claims</a>, we understand the unique challenges faced by motorcyclists on the road. We're committed to ensuring you receive the maximum compensation for your injuries and financial losses.</p>
-                    <div class="benefits">
-                        <ul>
-                            <li><i class="fas fa-check-circle"></i> Expert legal advice from specialist solicitors</li>
-                            <li><i class="fas fa-check-circle"></i> 100% No Win No Fee service</li>
-                            <li><i class="fas fa-check-circle"></i> Maximum compensation for your injuries</li>
-                            <li><i class="fas fa-check-circle"></i> Free advice with no obligation</li>
-                        </ul>
-                    </div>
-                    <a href="https://www.advice.co.uk/road-traffic-accident-claims/motorcycle-accident-claims" class="btn btn-primary">Learn More About Motorcycle Accident Claims</a>
-                </div>
-                <div class="intro-image">
-                    <img src="https://images.unsplash.com/photo-1583121274602-3e2820c69888?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Motorcycle accident claim">
-                </div>
-            </div>
-        </div>
-    </section>
-    """, unsafe_allow_html=True)
-
-# Eligibility section
-def eligibility_section():
-    st.markdown("""
-    <section class="eligibility">
-        <div class="container">
-            <div class="section-title">
-                <h2>Who Can Make Motorcycle Accident Claims?</h2>
-            </div>
-            <p>If you suffered harm in a motorcycle accident due to a breached duty of care, you could be eligible to claim. The eligibility criteria are:</p>
-            <div class="eligibility-cards">
-                <div class="card">
-                    <i class="fas fa-handshake card-icon"></i>
-                    <h3>Duty of Care Owed</h3>
-                    <p>You were owed a duty of care by another road user. All road users have a legal obligation to take reasonable steps to ensure your safety.</p>
-                </div>
-                <div class="card">
-                    <i class="fas fa-exclamation-triangle card-icon"></i>
-                    <h3>Breach of Duty</h3>
-                    <p>This duty of care was breached by the other party through negligent or reckless behavior such as speeding, distraction, or failing to follow road rules.</p>
-                </div>
-                <div class="card">
-                    <i class="fas fa-user-injured card-icon"></i>
-                    <h3>Harm Suffered</h3>
-                    <p>You suffered harm as a result of this breach, including physical injuries, psychological trauma, or financial losses due to the accident.</p>
-                </div>
-            </div>
-            <div style="text-align: center; margin-top: 40px;">
-                <a href="https://www.advice.co.uk/road-traffic-accident-claims/motorcycle-accident-claims" class="btn btn-primary">Check Your Eligibility Now</a>
-            </div>
-        </div>
-    </section>
-    """, unsafe_allow_html=True)
-
-# Compensation calculator section
-def compensation_calculator():
-    st.markdown("""
-    <section class="compensation">
-        <div class="container">
-            <div class="section-title">
-                <h2>What Motorcycle Accident Compensation Could I Get?</h2>
-            </div>
-            <p>Compensation amounts vary based on the severity of your injuries and other factors. Use our calculator to see potential compensation ranges for <a href="https://www.advice.co.uk/road-traffic-accident-claims/motorcycle-accident-claims">motorcycle collision claims</a>:</p>
-    """, unsafe_allow_html=True)
+# Main content container
+with st.container():
+    col1, col2, col3 = st.columns([1, 8, 1])
     
-    # Enhanced compensation calculator with interactive tabs
-    calculator_tabs = st.tabs(["Head Injuries", "Back Injuries", "Neck Injuries", "Leg Injuries"])
-    
-    with calculator_tabs[0]:
-        st.markdown("""
-        <div class="calculator">
-            <h3>Head Injury Compensation</h3>
-            <div class="compensation-range">
-                <div class="compensation-min">
-                    <div class="compensation-value">£344,150</div>
-                    <div class="compensation-label">Minimum</div>
-                </div>
-                <div class="compensation-arrow">→</div>
-                <div class="compensation-max">
-                    <div class="compensation-value">£493,000</div>
-                    <div class="compensation-label">Maximum</div>
-                </div>
-            </div>
-            <p>For very severe brain and head injuries resulting in double incontinence, little ability to follow basic commands, and full-time nursing care required. This includes traumatic brain injuries that significantly impact quality of life and cognitive function.</p>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    with calculator_tabs[1]:
-        st.markdown("""
-        <div class="calculator">
-            <h3>Back Injury Compensation</h3>
-            <div class="compensation-range">
-                <div class="compensation-min">
-                    <div class="compensation-value">£90,510</div>
-                    <div class="compensation-label">Minimum</div>
-                </div>
-                <div class="compensation-arrow">→</div>
-                <div class="compensation-max">
-                    <div class="compensation-value">£196,450</div>
-                    <div class="compensation-label">Maximum</div>
-                </div>
-            </div>
-            <p>For severe back injuries including damage to the spinal cord and nerve roots causing ongoing serious disability. These injuries often result in chronic pain, limited mobility, and may require surgery or long-term treatment.</p>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    with calculator_tabs[2]:
-        st.markdown("""
-        <div class="calculator">
-            <h3>Neck Injury Compensation</h3>
-            <div class="compensation-range">
-                <div class="compensation-min">
-                    <div class="compensation-value">£80,240</div>
-                    <div class="compensation-label">Minimum</div>
-                </div>
-                <div class="compensation-arrow">→</div>
-                <div class="compensation-max">
-                    <div class="compensation-value">£181,020</div>
-                    <div class="compensation-label">Maximum</div>
-                </div>
-            </div>
-            <p>For severe neck injuries including incomplete paraplegia or permanent spastic quadriparesis. These injuries can severely impact daily activities, work capabilities, and overall quality of life.</p>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    with calculator_tabs[3]:
-        st.markdown("""
-        <div class="calculator">
-            <h3>Leg Injury Compensation</h3>
-            <div class="compensation-range">
-                <div class="compensation-min">
-                    <div class="compensation-value">£66,920</div>
-                    <div class="compensation-label">Minimum</div>
-                </div>
-                <div class="compensation-arrow">→</div>
-                <div class="compensation-max">
-                    <div class="compensation-value">£165,860</div>
-                    <div class="compensation-label">Maximum</div>
-                </div>
-            </div>
-            <p>For the most serious leg injuries short of amputation, including extensive degloving or other extremely serious injuries. These injuries often result in permanent mobility issues and may require multiple surgeries.</p>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    st.markdown("""
-        <p class="disclaimer">These figures are based on the Judicial College Guidelines and should be used as guidance only. Actual compensation amounts may vary based on individual circumstances. For a personalized assessment, speak to one of our advisors about your <a href="https://www.advice.co.uk/road-traffic-accident-claims/motorcycle-accident-claims">motorbike accident compensation</a> case.</p>
+    with col2:
+        # Why Riders Are More Vulnerable
+        st.markdown('<div id="vulnerable"></div>', unsafe_allow_html=True)
+        with st.expander("### Why Riders Are More Vulnerable", expanded=True):
+            st.markdown("""
+            Motorcyclists are among the most vulnerable road users. Without the protective shell of a vehicle, 
+            riders are exposed to direct impact in collisions. Common injuries tend to be more severe, including:
+            
+            - Head and brain injuries (even with helmets)
+            - Spinal cord damage and paralysis
+            - Multiple fractures and broken bones
+            - Severe lacerations and road rash
+            - Psychological trauma and PTSD
+            
+            Statistics show that motorcyclists are approximately **38 times more likely** to be killed in a crash 
+            than car occupants per mile traveled. This heightened risk underscores the importance of proper 
+            compensation when accidents occur due to others' negligence.
+            """)
         
-        <div style="text-align: center; margin-top: 30px;">
-            <a href="https://www.advice.co.uk/road-traffic-accident-claims/motorcycle-accident-claims" class="btn btn-primary">Get Your Personalized Estimate</a>
-        </div>
-    </section>
-    """, unsafe_allow_html=True)
-
-# Financial losses section
-def financial_losses():
-    st.markdown("""
-    <section class="financial">
-        <div class="container">
-            <div class="section-title">
-                <h2>Can Motorbike Accident Claims Payout For Financial Losses?</h2>
-            </div>
-            <p>Yes – the special damages you are awarded as part of your motorcycle accident compensation will compensate you financially. You can claim special damages for:</p>
+        # Do You Have The Right To Claim?
+        st.markdown('<div id="eligibility"></div>', unsafe_allow_html=True)
+        with st.expander("### Do You Have The Right To Claim?", expanded=False):
+            st.markdown("""
+            You may have grounds for a compensation claim if your motorcycle accident was caused by:
             
-            <div class="financial-items">
-                <div class="financial-item">
-                    <i class="fas fa-briefcase"></i>
-                    <h3>Loss of Earnings</h3>
-                    <p>If you have had to take time off work or leave your job completely. This includes both past and future lost earnings.</p>
-                </div>
-                <div class="financial-item">
-                    <i class="fas fa-wheelchair"></i>
-                    <h3>Mobility Aids</h3>
-                    <p>Such as crutches, wheelchairs, or other equipment needed due to your injury. This includes both temporary and permanent aids.</p>
-                </div>
-                <div class="financial-item">
-                    <i class="fas fa-user-nurse"></i>
-                    <h3>At-Home Care</h3>
-                    <p>Including compensation if loved ones act as carers for you. We can help calculate the value of this care based on professional rates.</p>
-                </div>
-                <div class="financial-item">
-                    <i class="fas fa-hospital"></i>
-                    <h3>Medical Treatment</h3>
-                    <p>Private medical treatment or other relevant medical costs not covered by the NHS. This includes physiotherapy, counseling, and specialist consultations.</p>
-                </div>
-                <div class="financial-item">
-                    <i class="fas fa-ambulance"></i>
-                    <h3>Transportation</h3>
-                    <p>Costs for traveling to and from medical appointments. If you can no longer drive, we can claim for alternative transport costs.</p>
-                </div>
-            </div>
+            - Another driver's negligence (careless driving, speeding, etc.)
+            - Poor road conditions or defective road maintenance
+            - Faulty motorcycle parts or equipment
+            - Inadequate signage or road design
             
-            <div style="text-align: center; margin-top: 40px;">
-                <a href="https://www.advice.co.uk/road-traffic-accident-claims/motorcycle-accident-claims" class="btn btn-primary">Calculate Your Financial Losses</a>
-            </div>
-        </div>
-    </section>
-    """, unsafe_allow_html=True)
-
-# Time limits section
-def time_limits():
-    st.markdown("""
-    <section class="timeline">
-        <div class="container">
-            <div class="section-title">
-                <h2>What Is The Motorbike Injury Claims Time Limit?</h2>
-            </div>
-            <p>A 3-year time limit applies to motorcycle accident claims, as outlined in the Limitation Act 1980. This begins on the date of the accident in the majority of cases.</p>
+            **Key eligibility factors:**
             
-            <div class="timeline-container">
-                <div class="timeline-line"></div>
-                
-                <div class="timeline-item">
-                    <div class="timeline-dot"></div>
-                    <div class="timeline-content">
-                        <div class="timeline-date">Standard Time Limit</div>
-                        <h3>3 Years From Accident Date</h3>
-                        <p>For most motorcycle accident claims, you have 3 years from the date of the accident to start your claim. It's important to begin the process as early as possible while evidence is still fresh.</p>
-                    </div>
-                </div>
-                
-                <div class="timeline-item">
-                    <div class="timeline-dot"></div>
-                    <div class="timeline-content">
-                        <div class="timeline-date">Exception 1</div>
-                        <h3>Claims for Under 18s</h3>
-                        <p>If the person injured is under 18, the time limit begins on their 18th birthday, giving them until they turn 21 to make a claim. A litigation friend can claim on their behalf before this date.</p>
-                    </div>
-                </div>
-                
-                <div class="timeline-item">
-                    <div class="timeline-dot"></div>
-                    <div class="timeline-content">
-                        <div class="timeline-date">Exception 2</div>
-                        <h3>Lack of Mental Capacity</h3>
-                        <p>If the person lacks the mental capacity to claim, there is no time limit unless they regain capacity, at which point the 3-year time limit begins. A litigation friend can act on their behalf.</p>
-                    </div>
-                </div>
-            </div>
+            1. The accident occurred within the last three years (see time limits)
+            2. Another party was wholly or partially at fault
+            3. You sustained verifiable injuries or losses
             
-            <div style="text-align: center; margin-top: 40px;">
-                <a href="https://www.advice.co.uk/road-traffic-accident-claims/motorcycle-accident-claims" class="btn btn-primary">Check If You're Within Time Limit</a>
-            </div>
-        </div>
-    </section>
-    """, unsafe_allow_html=True)
-
-# Evidence section
-def evidence_section():
-    st.markdown("""
-    <section class="evidence">
-        <div class="container">
-            <div class="section-title">
-                <h2>What Evidence Will I Need?</h2>
-            </div>
-            <p>You will need evidence such as CCTV footage, photos, and the contact details of witnesses to make a claim. It needs to prove liability for the injuries you sustained.</p>
-            
-            <div class="evidence-list">
-                <div class="evidence-item">
-                    <i class="fas fa-video"></i>
-                    <h3>CCTV Footage</h3>
-                    <p>Contact the owner within 30 days before footage is deleted. This can include traffic cameras, shop security cameras, or dashcam footage from other vehicles.</p>
-                </div>
-                <div class="evidence-item">
-                    <i class="fas fa-car-crash"></i>
-                    <h3>Dash-cam Footage</h3>
-                    <p>Especially useful if there was no CCTV in the area. If you have a dashcam, save the footage immediately. If another vehicle has one, try to get their details.</p>
-                </div>
-                <div class="evidence-item">
-                    <i class="fas fa-users"></i>
-                    <h3>Witness Details</h3>
-                    <p>Phone numbers or email addresses of witnesses to the accident. Independent witnesses can significantly strengthen your claim by providing an unbiased account.</p>
-                </div>
-                <div class="evidence-item">
-                    <i class="fas fa-id-card"></i>
-                    <h3>Contact/Insurance Details</h3>
-                    <p>Details of the person responsible for the accident. If they don't provide this, take a photo of their license plate and report the accident to the police.</p>
-                </div>
-                <div class="evidence-item">
-                    <i class="fas fa-camera"></i>
-                    <h3>Photos and Videos</h3>
-                    <p>Visual evidence of injuries, accident scene, or perpetrator. Take photos of vehicle damage, road conditions, weather, and any visible injuries immediately after the accident.</p>
-                </div>
-            </div>
-            
-            <div style="text-align: center; margin-top: 40px;">
-                <a href="https://www.advice.co.uk/road-traffic-accident-claims/motorcycle-accident-claims" class="btn btn-outline">Download Our Evidence Checklist</a>
-            </div>
-        </div>
-    </section>
-    """, unsafe_allow_html=True)
-
-# Examples section
-def examples_section():
-    st.markdown("""
-    <section class="examples">
-        <div class="container">
-            <div class="section-title">
-                <h2>Common Examples of Motorcycle Accident Claims</h2>
-            </div>
-            <p>Motorcycle accidents can happen in many different ways. The examples below show how the duty of care was breached in each situation:</p>
-            
-            <div class="example-cards">
-                <div class="example-card">
-                    <div class="example-image">
-                        <img src="https://www.advice.co.uk/wp-content/uploads/2025/05/motorcycle-under-car-300x200.jpg" alt="Motorcycle under car">
-                    </div>
-                    <div class="example-content">
-                        <h3>Distracted Driver Collision</h3>
-                        <p>A driver is distracted by their phone while on the motorway, causing them to crash into your motorcycle. You suffer a severe head injury and soft tissue injuries due to the crash. The driver breached their duty of care by not paying attention to the road.</p>
-                    </div>
-                </div>
-                
-                <div class="example-card">
-                    <div class="example-image">
-                        <img src="https://www.advice.co.uk/wp-content/uploads/2025/05/motorcycle-on-road-300x200.jpg" alt="Motorcycle on road">
-                    </div>
-                    <div class="example-content">
-                        <h3>Speeding Motorcyclist</h3>
-                        <p>A motorcyclist goes over the speed limit on a busy road, causing you to lose balance and fall off your motorcycle. You suffer a broken arm and a fractured collarbone due to the fall. The other motorcyclist breached their duty by exceeding the speed limit.</p>
-                    </div>
-                </div>
-                
-                <div class="example-card">
-                    <div class="example-image">
-                        <img src="https://www.advice.co.uk/wp-content/uploads/2025/05/people-on-road-300x196.jpg" alt="People on road">
-                    </div>
-                    <div class="example-content">
-                        <h3>Dangerous Overtaking</h3>
-                        <p>You are side by side with another motorcycle at a junction. It overtakes you by speeding up when it is not safe to do so. Your motorcycle skids and you fall, leading to a fractured ankle and a minor head injury. The other rider breached their duty by dangerous overtaking.</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div style="text-align: center; margin-top: 40px;">
-                <a href="https://www.advice.co.uk/road-traffic-accident-claims/motorcycle-accident-claims" class="btn btn-primary">See More Examples</a>
-            </div>
-        </div>
-    </section>
-    """, unsafe_allow_html=True)
-
-# Process section
-def process_section():
-    st.markdown("""
-    <section class="process">
-        <div class="container">
-            <div class="section-title">
-                <h2>How Long Will A Motorbike Injury Claim Take?</h2>
-            </div>
-            <p>The majority of motorbike accident claims are settled within a year. However, a claim can take longer depending on several factors:</p>
-            
-            <div class="process-steps">
-                <div class="process-step">
-                    <div class="step-number">1</div>
-                    <div class="step-title">Initial Consultation</div>
-                    <p>Free advice to assess your claim eligibility. We'll listen to your situation and provide honest feedback on your chances of success.</p>
-                </div>
-                
-                <div class="process-step">
-                    <div class="step-number">2</div>
-                    <div class="step-title">Gathering Evidence</div>
-                    <p>Collecting all necessary documentation including medical records, witness statements, and evidence of financial losses.</p>
-                </div>
-                
-                <div class="process-step">
-                    <div class="step-number">3</div>
-                    <div class="step-title">Medical Assessment</div>
-                    <p>Independent medical evaluation of injuries to understand their severity and long-term impact on your life.</p>
-                </div>
-                
-                <div class="process-step">
-                    <div class="step-number">4</div>
-                    <div class="step-title">Negotiation</div>
-                    <p>Securing the best possible compensation through skilled negotiation with the responsible party's insurers.</p>
-                </div>
-                
-                <div class="process-step">
-                    <div class="step-number">5</div>
-                    <div class="step-title">Settlement</div>
-                    <p>Receiving your compensation payout. Most claims are settled out of court, but we're prepared to take your case to trial if necessary.</p>
-                </div>
-            </div>
-            
-            <div style="text-align: center; margin-top: 40px;">
-                <a href="https://www.advice.co.uk/road-traffic-accident-claims/motorcycle-accident-claims" class="btn btn-primary">Start Your Claim Today</a>
-            </div>
-        </div>
-    </section>
-    """, unsafe_allow_html=True)
-
-# How we help section
-def how_we_help():
-    st.markdown("""
-    <section class="help">
-        <div class="container">
-            <div class="section-title">
-                <h2>How Advice Can Help With Your Motorcycle Injury Claim</h2>
-            </div>
-            
-            <div class="help-content">
-                <div class="help-image">
-                    <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Motorcycle accident lawyer">
-                </div>
-                
-                <div class="help-text">
-                    <p>If your claim is eligible, our panel of motorbike accident solicitors will ensure you get the settlement you deserve. In addition to negotiating a settlement, our panel of solicitors will:</p>
-                    
-                    <ul class="help-list">
-                        <li><i class="fas fa-file-contract"></i> Explain legal terminology in simple terms so you understand every aspect of your claim</li>
-                        <li><i class="fas fa-user-md"></i> Put you in contact with specialists like physiotherapists and medical experts</li>
-                        <li><i class="fas fa-comments"></i> Communicate with all relevant parties on your behalf, including insurers and medical professionals</li>
-                        <li><i class="fas fa-balance-scale"></i> Advise you on settlement offers to ensure you receive fair compensation</li>
-                        <li><i class="fas fa-stethoscope"></i> Arrange an independent medical assessment where necessary to document your injuries</li>
-                    </ul>
-                    
-                    <div class="no-fee-box">
-                        <h3>No Win No Fee Claims</h3>
-                        <p>Our panel of solicitors take on claims on a No Win No Fee basis via a Conditional Fee Agreement (CFA). This means you don't have to pay solicitor's fees before or during your claim, and you won't need to pay this fee if you do not receive a compensation payout. If your case is successful, a success fee will be deducted from your compensation, but this is legally limited and agreed upon in advance.</p>
-                    </div>
-                    
-                    <a href="https://www.advice.co.uk/road-traffic-accident-claims/motorcycle-accident-claims" class="btn btn-primary" style="margin-top: 20px;">Speak to an Advisor</a>
-                </div>
-            </div>
-        </div>
-    </section>
-    """, unsafe_allow_html=True)
-
-# Contact section
-def contact_section():
-    st.markdown("""
-    <section class="contact">
-        <div class="container">
-            <div class="section-title">
-                <h2>Ready to Make Your Claim?</h2>
-            </div>
-            <p>It's completely free to speak to one of our experienced advisors about road traffic accidents and the claims process.</p>
-            
-            <div class="contact-options">
-                <div class="contact-option">
-                    <i class="fas fa-phone-alt"></i>
-                    <h3>Call Us Now</h3>
-                    <div class="contact-phone">0161 696 9685</div>
-                    <p>Our advisors are available 24/7 to provide free advice on your claim</p>
-                    <a href="tel:01616969685" class="btn btn-primary" style="margin-top: 20px;">Call Now</a>
-                </div>
-                
-                <div class="contact-option">
-                    <i class="fas fa-comments"></i>
-                    <h3>Live Chat</h3>
-                    <p>Chat with one of our advisors online for instant answers to your questions</p>
-                    <a href="https://www.advice.co.uk/road-traffic-accident-claims/motorcycle-accident-claims" class="btn btn-primary" style="margin-top: 20px;">Chat With Us Now</a>
-                </div>
-                
-                <div class="contact-option">
-                    <i class="fas fa-envelope"></i>
-                    <h3>Contact Form</h3>
-                    <p>Fill in your details and we'll get back to you as soon as possible</p>
-    """, unsafe_allow_html=True)
-    
-    # Enhanced contact form with Streamlit
-    with st.form("contact_form"):
-        name = st.text_input("Your Name", key="name")
-        phone = st.text_input("Phone Number", key="phone")
-        email = st.text_input("Email Address", key="email")
-        message = st.text_area("Brief description of your accident", key="message", height=100)
-        submitted = st.form_submit_button("Send Message")
+            Even if you believe you may have been partially at fault, you could still claim compensation under 
+            the principle of "contributory negligence." It's advisable to seek professional legal advice to 
+            assess your specific situation.
+            """)
         
-        if submitted:
-            # Here you would normally process the form data
-            # For demo purposes, we'll just show a success message
-            st.success("Thank you for your message. We will contact you shortly.")
+        # What Could Compensation Include?
+        st.markdown('<div id="compensation"></div>', unsafe_allow_html=True)
+        with st.expander("### What Could Compensation Include?", expanded=False):
+            st.markdown("""
+            A successful motorcycle accident claim can provide compensation for:
             
-            # Log the form submission (in a real app, you'd save this to a database)
-            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            log_entry = f"{timestamp} - New contact form submission: {name}, {phone}, {email}"
-            st.write(log_entry)
-    
-    st.markdown("""
-                </div>
-            </div>
-        </div>
-    </section>
-    """, unsafe_allow_html=True)
-
-# Footer section
-def footer():
-    st.markdown("""
-    <footer>
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-column">
-                    <h3>Advice.co.uk</h3>
-                    <p>301 The Tea Factory, St Peter's Square, Liverpool L1 4DQ</p>
-                    <p>Email: info@advice.co.uk</p>
-                    <p>Phone: 0161 696 9685</p>
-                </div>
-                
-                <div class="footer-column">
-                    <h3>Regulatory Information</h3>
-                    <p>Advice is a trading name of Velasco Limited. Velasco is a claims management company authorised by the Financial Conduct Authority (FCA).</p>
-                    <p>We receive a fee for recommending a solicitor. This fee is not passed on to customers.</p>
-                </div>
-            </div>
+            **General Damages:**
+            - Pain and suffering from injuries
+            - Psychological trauma and emotional distress
+            - Loss of amenity (reduced quality of life)
             
-            <div class="footer-bottom">
-                <p>&copy; 2025 Advice.co.uk. All Rights Reserved.</p>
-            </div>
-        </div>
-    </footer>
-    """, unsafe_allow_html=True)
+            **Special Damages (financial losses):**
+            - Medical expenses (current and future)
+            - Loss of earnings and future earning capacity
+            - Cost of care and rehabilitation
+            - Motorcycle repair or replacement costs
+            - Travel expenses to medical appointments
+            - Adapted accommodation or vehicle modifications
+            
+            Compensation amounts vary significantly based on injury severity, impact on your life, 
+            and financial losses incurred. Serious injuries leading to long-term disability typically 
+            result in higher compensation awards.
+            """)
+        
+        # How Long Do You Have To Claim?
+        st.markdown('<div id="timeline"></div>', unsafe_allow_html=True)
+        with st.expander("### How Long Do You Have To Claim?", expanded=False):
+            st.markdown("""
+            In the UK, the standard time limit for personal injury claims is:
+            
+            **Three years from the accident date**
+            
+            However, exceptions apply in certain circumstances:
+            
+            - For children: The three-year limit begins on their 18th birthday
+            - For those lacking mental capacity: The time limit may be paused
+            - If the injury wasn't immediately apparent: The limit may run from the date of knowledge
+            
+            While three years might seem ample, starting the process early is strongly recommended. 
+            Gathering evidence becomes more difficult with time, and early legal advice can significantly 
+            strengthen your case.
+            
+            Don't assume you have plenty of time - contact a solicitor as soon as you're able after your accident.
+            """)
+        
+        # Gathering Evidence For Your Case
+        st.markdown('<div id="evidence"></div>', unsafe_allow_html=True)
+        with st.expander("### Gathering Evidence For Your Case", expanded=False):
+            st.markdown("""
+            Strong evidence is crucial for a successful claim. If possible after an accident, try to collect:
+            
+            **At the scene:**
+            - Photographs of the accident scene, vehicle positions, and road conditions
+            - Contact details of any witnesses
+            - The other driver's information and insurance details
+            - Police incident number (if they attended)
+            
+            **Medical evidence:**
+            - Comprehensive medical reports detailing all injuries
+            - Records of all treatments, medications, and therapies
+            - Photographs of visible injuries over time
+            
+            **Financial evidence:**
+            - Receipts for all accident-related expenses
+            - Documentation of lost income (payslips, employer letters)
+            - Records of care costs and other financial impacts
+            
+            Even if you couldn't gather evidence at the scene, a solicitor can help reconstruct events 
+            and collect crucial evidence later through accident reconstruction experts, CCTV footage 
+            requests, and witness statements.
+            """)
+        
+        # How Long Might A Claim Take?
+        st.markdown('<div id="process"></div>', unsafe_allow_html=True)
+        with st.expander("### How Long Might A Claim Take?", expanded=False):
+            st.markdown("""
+            Claim duration varies significantly based on case complexity:
+            
+            - **Straightforward cases** (clear liability, minor injuries): 6-12 months
+            - **Moderately complex cases** (disputed liability, multiple injuries): 12-24 months
+            - **Highly complex cases** (serious injuries, multiple parties, disputed facts): 2-5 years
+            
+            **Factors affecting timeline:**
+            
+            1. Liability disputes - if fault is contested, resolution takes longer
+            2. Injury severity - serious injuries require longer medical assessment
+            3. Defendant response - insurance companies vary in their responsiveness
+            4. Court availability - if litigation is necessary, this adds time
+            
+            Your solicitor can provide a more accurate timeline after evaluating your specific case. 
+            While some claims resolve quickly, it's important to prepare for a process that may take 
+            considerable time, especially for serious injuries where long-term prognosis needs assessment.
+            """)
+        
+        # Why Many Choose Legal Support
+        st.markdown('<div id="support"></div>', unsafe_allow_html=True)
+        with st.expander("### Why Many Choose Legal Support", expanded=False):
+            st.markdown("""
+            Most motorcycle accident claimants benefit from professional legal representation because:
+            
+            - **Expert knowledge**: Solicitors understand complex personal injury law and procedures
+            - **Evidence gathering**: Legal teams know what evidence is needed and how to obtain it
+            - **Proper valuation**: Lawyers ensure all damages are identified and properly valued
+            - **Negotiation skills**: Experienced negotiators can maximize your compensation
+            - **Reduced stress**: Handling the claim process allows you to focus on recovery
+            - **No-win, no-fee options**: Many solicitors offer conditional fee agreements
+            
+            Insurance companies have legal teams working to minimize payouts. Having your own legal 
+            representation levels the playing field and significantly increases your chances of 
+            receiving full and fair compensation.
+            
+            Initial consultations are typically free, allowing you to understand your options without 
+            financial commitment.
+            """)
+        
+        # Final Thoughts
+        with st.expander("### Final Thoughts", expanded=False):
+            st.markdown("""
+            Being involved in a motorcycle accident can be a life-changing experience with physical, 
+            emotional, and financial consequences. Understanding your rights to compensation is an 
+            important step toward recovery.
+            
+            **Key takeaways:**
+            
+            1. You may have a claim if someone else was at fault for your accident
+            2. Time limits apply - generally three years from the accident date
+            3. Compensation can cover both physical injuries and financial losses
+            4. Professional legal support typically improves outcomes
+            
+            If you've been involved in a motorcycle accident, don't navigate the complex claims 
+            process alone. Seek professional advice to understand your options and ensure your 
+            rights are protected.
+            
+            > *This guide provides general information but does not constitute legal advice. 
+            > For advice specific to your situation, consult with a qualified solicitor.*
+            """)
+        
+        # Contact form
+        st.markdown('<div id="contact"></div>', unsafe_allow_html=True)
+        st.markdown("### Contact Us For a Free Case Assessment")
+        st.markdown("Complete the form below and our specialist motorcycle claims team will contact you for a free, no-obligation consultation.")
+        
+        with st.form("contact_form"):
+            col1, col2 = st.columns(2)
+            with col1:
+                name = st.text_input("Full Name*")
+            with col2:
+                email = st.text_input("Email Address*")
+            message = st.text_area("Brief Description of Your Accident*")
+            submitted = st.form_submit_button("Submit Inquiry")
+            if submitted:
+                if name and email and message:
+                    st.success("Thank you for your inquiry. We'll contact you within 24 hours.")
+                else:
+                    st.error("Please complete all required fields.")
 
-# Main app function
-def main():
-    # Load Font Awesome
-    st.markdown('<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">', unsafe_allow_html=True)
-    
-    # Apply custom CSS
-    local_css()
-    
-    # Render all sections
-    header()
-    hero_section()
-    trust_indicators()
-    introduction_section()
-    eligibility_section()
-    compensation_calculator()
-    financial_losses()
-    time_limits()
-    evidence_section()
-    examples_section()
-    process_section()
-    how_we_help()
-    contact_section()
-    footer()
+# Floating contact button
+st.markdown("""
+<a href="https://www.advice.co.uk" target="_blank">
+    <button class="floating-btn">Contact a Solicitor</button>
+</a>
+""", unsafe_allow_html=True)
 
-# Run the app
-if __name__ == "__main__":
-    main()
+# Footer
+st.markdown("""
+<div class="footer">
+    <p>© 2023 Motorcycle Accident Claims Guide. All rights reserved.</p>
+    <div>
+        <a href="#">Privacy Policy</a> | 
+        <a href="#">Disclaimer</a> | 
+        <a href="#">Contact</a>
+    </div>
+</div>
+""", unsafe_allow_html=True)
+
+# Smooth scroll JavaScript
+components.html("""
+<script>
+// Smooth scrolling for navigation links
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const targetId = this.getAttribute('href');
+        if(targetId !== '#') {
+            const targetElement = document.querySelector(targetId);
+            if(targetElement) {
+                window.scrollTo({
+                    top: targetElement.offsetTop - 70,
+                    behavior: 'smooth'
+                });
+            }
+        }
+    });
+});
+
+// Make navbar sticky
+window.addEventListener('scroll', function() {
+    const navbar = document.querySelector('.navbar');
+    if (window.scrollY > 50) {
+        navbar.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
+    } else {
+        navbar.style.boxShadow = 'none';
+    }
+});
+</script>
+""", height=0)
